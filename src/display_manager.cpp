@@ -108,6 +108,7 @@ void DisplayManager::processEvents()
 				}
 			}
 			else if ((event.key.code == sf::Keyboard::A)) render_ants = !render_ants;
+			else if ((event.key.code == sf::Keyboard::D)) m_world.renderer.draw_density = !m_world.renderer.draw_density;
 			else if ((event.key.code == sf::Keyboard::M)) m_world.renderer.draw_markers = !m_world.renderer.draw_markers;
 			else if ((event.key.code == sf::Keyboard::W)) {
 				wall_mode = !wall_mode;

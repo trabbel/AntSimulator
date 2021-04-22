@@ -5,11 +5,9 @@
 
 #include "world_grid.hpp"
 #include "utils.hpp"
-#include "wall.hpp"
 #include "grid.hpp"
 #include "ant_mode.hpp"
 #include "world_renderer.hpp"
-#include "walls_renderer.hpp"
 
 
 struct World

@@ -23,6 +23,7 @@ struct Ant
 		, liberty_coef(RNGf::getRange(0.0001f, 0.001f))
 		, hits(0)
 		, markers_count(0.0f)
+		, current_harvest_time(harvest_time + 1.0f)
 	{
 	}
 
@@ -34,7 +35,7 @@ struct Ant
 		}
 
 		last_direction_update += dt;
-		if (last_direction_update > direction_update_period) {
+		if (last_direction_update > direction_update_period && current_harvest_time > harvest_time) {
 			findMarker(world, dt);
 			direction += RNGf::getFullRange(direction_noise_range);
 			last_direction_update = 0.0f;
@@ -51,7 +52,6 @@ struct Ant
 	void updatePosition(World& world, float dt)
 	{
 		sf::Vector2f v = direction.getVec();
-		const sf::Vector2f next_position = position + (dt * move_speed) * v;
 		const HitPoint intersection = world.markers.getFirstHit(position, v, dt * move_speed);
 		if (intersection.cell) {
 			++hits;
@@ -66,18 +66,27 @@ struct Ant
 		}
 		else {
 			hits = 0;
-			position += (dt * move_speed) * v;
-			// Ants outside the map go back to home
-			position.x = (position.x < 0.0f || position.x > Conf::WIN_WIDTH) ? Conf::COLONY_POSITION.x : position.x;
-			position.y = (position.y < 0.0f || position.y > Conf::WIN_HEIGHT) ? Conf::COLONY_POSITION.y : position.y;
+			if (current_harvest_time > harvest_time) {
+				position += (dt * move_speed) * v;
+				// Ants outside the map go back to home
+				position.x = (position.x < 0.0f || position.x > Conf::WIN_WIDTH) ? Conf::COLONY_POSITION.x : position.x;
+				position.y = (position.y < 0.0f || position.y > Conf::WIN_HEIGHT) ? Conf::COLONY_POSITION.y : position.y;
+			}
 		}
+
+		if (current_harvest_time < harvest_time && current_harvest_time + dt >= harvest_time) {
+			direction.addNow(PI);
+		}
+		current_harvest_time += dt;
+
+		world.markers.get(position).density += 1.0f;
 	}
 
 	void checkFood(World& world)
 	{
 		if (world.markers.isOnFood(position)) {
+			current_harvest_time = 0.0f;
 			phase = Mode::ToHome;
-			direction.addNow(PI);
 			world.markers.pickFood(position);
 			markers_count = 0.0f;
 			return;
@@ -116,13 +125,13 @@ struct Ant
 				continue;
 			}
 			// Check for food or colony
-			if (cell->permanent[static_cast<uint32_t>(phase)]) {
+			if (cell->isPermanent(phase)) {
 				max_direction = to_marker;
 				break;
 			}
 			// Check for the most intense marker
-			if (cell->intensity[static_cast<uint32_t>(phase)] > max_intensity) {
-				max_intensity = cell->intensity[static_cast<uint32_t>(phase)];
+			if (cell->getIntensity(phase) > max_intensity) {
+				max_intensity = cell->getIntensity(phase);
 				max_direction = to_marker;
 				max_cell = cell;
 			}
@@ -134,7 +143,7 @@ struct Ant
 		// Update direction
 		if (max_intensity) {
 			if (RNGf::proba(0.3f)) {
-				max_cell->intensity[static_cast<uint32_t>(phase)] *= 0.99f;
+				max_cell->intensity[to<uint32_t>(phase)] *= 0.99f;
 			}
 			direction = getAngle(max_direction);
 		}
@@ -181,6 +190,7 @@ struct Ant
 	const float marker_period = 0.125f;
 	const float direction_noise_range = PI * 0.1f;
 	const float colony_size = 20.0f;
+	const float harvest_time = 2.0f;
 
 	uint32_t hits;
 
@@ -192,4 +202,5 @@ struct Ant
 	float markers_count;
 	float last_marker;
 	float liberty_coef;
+	float current_harvest_time;
 };

@@ -15,12 +15,14 @@ struct WorldCell
 	// Food quantity in the cell
 	uint32_t food;
 	uint32_t wall;
+	float density;
 
 	WorldCell()
 		: intensity{ 0.0f, 0.0f }
 		, permanent{ false, false }
 		, food(0)
 		, wall(0)
+		, density(0.0f)
 	{}
 
 	void update(float dt)
@@ -34,11 +36,23 @@ struct WorldCell
 		// Remove food marker if no food
 		intensity[1] = intensity[1] * to<float>(!bool(!food && permanent[1]));
 		permanent[1] &= to<bool>(food);
+		// Update density
+		density *= 0.99f;
 	}
 
 	void pick()
 	{
 		food -= bool(food);
+	}
+
+	float getIntensity(Mode mode) const
+	{
+		return intensity[to<uint32_t>(mode)];
+	}
+
+	bool isPermanent(Mode mode) const
+	{
+		return permanent[to<uint32_t>(mode)];
 	}
 };
 
