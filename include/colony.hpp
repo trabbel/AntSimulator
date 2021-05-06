@@ -9,10 +9,12 @@
 
 struct Colony
 {
-	Colony(float x, float y, uint32_t n, float mal_prob)
+	Colony(float x, float y, uint32_t n, float mal_prob, int mal_timer_delay)
 		: position(x, y)
 		, last_direction_update(0.0f)
 		, ants_va(sf::Quads, 4 * n)
+    , mal_timer_delay(mal_timer_delay)
+    , timer_count(0)
 	{
     // std::cout<<std::abs(((double) rand() / (RAND_MAX)));
       // std::cout<<"Normal";
@@ -51,14 +53,19 @@ struct Colony
 	}
 
 	void update(const float dt, World& world)
-	{		
+	{	
+    bool wreak_havoc = timer_count >= mal_timer_delay ? true : false;
 		for (Ant& ant : ants) {
-			ant.update(dt, world);
+			ant.update(dt, world, wreak_havoc);
 		}
 
 		for (Ant& ant : ants) {
 			ant.checkColony(position);
 		}
+    if(wreak_havoc)
+      timer_count = 0;
+    else
+      timer_count ++;
 	}
 
 	void render(sf::RenderTarget& target, const sf::RenderStates& states) const
@@ -85,4 +92,6 @@ struct Colony
 	float last_direction_update;
 	const float direction_update_period = 0.25f;
 
+  int mal_timer_delay;
+  int timer_count;
 };
