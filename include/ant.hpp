@@ -14,7 +14,7 @@ struct Ant
 {
 	Ant() = default;
 
-	Ant(float x, float y, float angle)
+	Ant(float x, float y, float angle, bool malicious=false)
 		: position(x, y)
 		, direction(angle)
 		, last_direction_update(RNGf::getUnder(1.0f) * direction_update_period)
@@ -23,6 +23,7 @@ struct Ant
 		, liberty_coef(RNGf::getRange(0.0001f, 0.001f))
 		, hits(0)
 		, markers_count(0.0f)
+    , is_malicious(malicious)
 	{
 	}
 
@@ -145,7 +146,10 @@ struct Ant
 		markers_count += marker_period;
 		const float coef = 0.01f;
 		const float intensity = 1000.0f * exp(-coef * markers_count);
-		world.addMarker(position, phase == Mode::ToFood ? Mode::ToHome : Mode::ToFood, intensity);
+    if(!is_malicious)
+		  world.addMarker(position, phase == Mode::ToFood ? Mode::ToHome : Mode::ToFood, intensity);
+    else
+      world.addMarker(position, Mode::ToFood, intensity);
 		last_marker = 0.0f;
 	}
 
@@ -191,4 +195,6 @@ struct Ant
 	float markers_count;
 	float last_marker;
 	float liberty_coef;
+
+  bool is_malicious;
 };

@@ -33,7 +33,13 @@ int main()
 	window.setFramerateLimit(60);
 
 	World world(Conf::WORLD_WIDTH, Conf::WORLD_HEIGHT);
-	Colony colony(Conf::COLONY_POSITION.x, Conf::COLONY_POSITION.y, Conf::ANTS_COUNT);
+
+
+  /****************************************************************************************
+   ************************ CHANGE THIS FRACTION OF MALICIOUS ANTS ************************
+   ****************************************************************************************/
+  float malicious_fraction = 0.01;
+	Colony colony(Conf::COLONY_POSITION.x, Conf::COLONY_POSITION.y, Conf::ANTS_COUNT, malicious_fraction);
 	for (uint32_t i(0); i < 64; ++i) {
 		float angle = float(i) / 64.0f * (2.0f * PI);
 		world.addMarker(colony.position + 16.0f * sf::Vector2f(cos(angle), sin(angle)), Mode::ToHome, 10.0f, true);

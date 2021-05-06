@@ -9,27 +9,45 @@
 
 struct Colony
 {
-	Colony(float x, float y, uint32_t n)
+	Colony(float x, float y, uint32_t n, float mal_prob)
 		: position(x, y)
 		, last_direction_update(0.0f)
 		, ants_va(sf::Quads, 4 * n)
 	{
-		for (uint32_t i(n); i--;) {
-			ants.emplace_back(x, y, getRandRange(2.0f * PI));
-		}
+    // std::cout<<std::abs(((double) rand() / (RAND_MAX)));
+      // std::cout<<"Normal";
+    for (uint64_t i(0); i < n; ++i) {
+      if(std::abs(((double) rand() / (RAND_MAX))) > mal_prob)
+      {
+        ants.emplace_back(x, y, getRandRange(2.0f * PI));
 
-		for (uint64_t i(0); i < n; ++i) {
-			const uint64_t index = 4 * i;
-			ants_va[index + 0].color = Conf::ANT_COLOR;
-			ants_va[index + 1].color = Conf::ANT_COLOR;
-			ants_va[index + 2].color = Conf::ANT_COLOR;
-			ants_va[index + 3].color = Conf::ANT_COLOR;
+        const uint64_t index = 4 * i;
+        ants_va[index + 0].color = Conf::ANT_COLOR;
+        ants_va[index + 1].color = Conf::ANT_COLOR;
+        ants_va[index + 2].color = Conf::ANT_COLOR;
+        ants_va[index + 3].color = Conf::ANT_COLOR;
 
-			ants_va[index + 0].texCoords = sf::Vector2f(0.0f, 0.0f);
-			ants_va[index + 1].texCoords = sf::Vector2f(73.0f, 0.0f);
-			ants_va[index + 2].texCoords = sf::Vector2f(73.0f, 107.0f);
-			ants_va[index + 3].texCoords = sf::Vector2f(0.0f, 107.0f);
-		}
+        ants_va[index + 0].texCoords = sf::Vector2f(0.0f, 0.0f);
+        ants_va[index + 1].texCoords = sf::Vector2f(73.0f, 0.0f);
+        ants_va[index + 2].texCoords = sf::Vector2f(73.0f, 107.0f);
+        ants_va[index + 3].texCoords = sf::Vector2f(0.0f, 107.0f);
+      }
+      else
+      {
+          ants.emplace_back(x, y, getRandRange(2.0f * PI), true);
+
+          const uint64_t index = 4 * i;
+          ants_va[index + 0].color = Conf::MALICIOUS_ANT_COLOR;
+          ants_va[index + 1].color = Conf::MALICIOUS_ANT_COLOR;
+          ants_va[index + 2].color = Conf::MALICIOUS_ANT_COLOR;
+          ants_va[index + 3].color = Conf::MALICIOUS_ANT_COLOR;
+
+          ants_va[index + 0].texCoords = sf::Vector2f(0.0f, 0.0f);
+          ants_va[index + 1].texCoords = sf::Vector2f(73.0f, 0.0f);
+          ants_va[index + 2].texCoords = sf::Vector2f(73.0f, 107.0f);
+          ants_va[index + 3].texCoords = sf::Vector2f(0.0f, 107.0f);
+		  }
+    }
 	}
 
 	void update(const float dt, World& world)

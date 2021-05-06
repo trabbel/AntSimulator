@@ -8,6 +8,7 @@ template<typename T>
 struct DefaultConf
 {
 	const static sf::Color ANT_COLOR;
+	const static sf::Color MALICIOUS_ANT_COLOR;
 	const static sf::Color FOOD_COLOR;
 	const static sf::Color TO_FOOD_COLOR;
 	const static sf::Color TO_HOME_COLOR;
@@ -41,13 +42,15 @@ struct DefaultConf
 };
 
 template<typename T>
-const sf::Color DefaultConf<T>::ANT_COLOR = sf::Color(255, 73, 68);
+const sf::Color DefaultConf<T>::ANT_COLOR = sf::Color(68, 73, 255);
+template<typename T>
+const sf::Color DefaultConf<T>::MALICIOUS_ANT_COLOR = sf::Color(255, 73, 68);
 template<typename T>
 const sf::Color DefaultConf<T>::FOOD_COLOR = sf::Color(66, 153, 66);
 template<typename T>
 const sf::Color DefaultConf<T>::TO_FOOD_COLOR = sf::Color(0, 255, 0);
 template<typename T>
-const sf::Color DefaultConf<T>::TO_HOME_COLOR = sf::Color(255, 0, 0);
+const sf::Color DefaultConf<T>::TO_HOME_COLOR = sf::Color(68, 73, 150);
 template<typename T>
 const sf::Color DefaultConf<T>::COLONY_COLOR = DefaultConf<T>::ANT_COLOR;
 template<typename T>
