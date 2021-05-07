@@ -30,8 +30,8 @@ struct Ant
 	void update(const float dt, World& world, bool wreak_havoc)
 	{
 		updatePosition(world, dt);
-    if(is_malicious && wreak_havoc)
-    phase = Mode::ToHome;
+		if(is_malicious && wreak_havoc)
+		phase = Mode::ToHome;
 
 		if (phase == Mode::ToFood) {
 			checkFood(world);
@@ -149,10 +149,10 @@ struct Ant
 		markers_count += marker_period;
 		const float coef = 0.01f;
 		const float intensity = 1000.0f * exp(-coef * markers_count);
-    // if(!is_malicious)
-    world.addMarker(position, phase == Mode::ToFood ? Mode::ToHome : Mode::ToFood, intensity);
-    // else
-    //   world.addMarker(position, Mode::ToFood, intensity);
+		Mode antTrail = is_malicious ? Mode::ToHell : Mode::ToFood;
+		world.addMarker(position, phase == Mode::ToFood ? Mode::ToHome : antTrail, intensity);
+		// else
+		//   world.addMarker(position, Mode::ToFood, intensity);
 		last_marker = 0.0f;
 	}
 
