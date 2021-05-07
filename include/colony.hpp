@@ -9,12 +9,13 @@
 
 struct Colony
 {
-	Colony(float x, float y, uint32_t n, float mal_prob, int mal_timer_delay)
+	Colony(float x, float y, uint32_t n, float mal_prob, int mal_timer_delay, float malicious_counter_rise)
 		: position(x, y)
 		, last_direction_update(0.0f)
 		, ants_va(sf::Quads, 4 * n)
     , mal_timer_delay(mal_timer_delay)
     , timer_count(0)
+    , counter_rise_fraction(malicious_counter_rise)
 	{
     // std::cout<<std::abs(((double) rand() / (RAND_MAX)));
       // std::cout<<"Normal";
@@ -36,7 +37,7 @@ struct Colony
       }
       else
       {
-          ants.emplace_back(x, y, getRandRange(2.0f * PI), true);
+          ants.emplace_back(x, y, PI*5/4, true);
 
           const uint64_t index = 4 * i;
           ants_va[index + 0].color = Conf::MALICIOUS_ANT_COLOR;
@@ -63,7 +64,10 @@ struct Colony
 			ant.checkColony(position);
 		}
     if(wreak_havoc)
+    {
       timer_count = 0;
+      mal_timer_delay *= counter_rise_fraction;
+    }
     else
       timer_count ++;
 	}
@@ -94,4 +98,5 @@ struct Colony
 
   int mal_timer_delay;
   int timer_count;
+  float counter_rise_fraction;
 };
