@@ -125,8 +125,14 @@ struct Ant
 				break;
 			}
 			// Check for the most intense marker
-			if (cell->intensity[static_cast<uint32_t>(phase)] > max_intensity) {
-				max_intensity = cell->intensity[static_cast<uint32_t>(phase)];
+			float intensity;
+			if(phase == Mode::ToHell || phase == Mode::ToFood) 
+				intensity = cell->intensity[static_cast<uint32_t>(Mode::ToFood)] +  cell->intensity[static_cast<uint32_t>(Mode::ToHell)];
+			else
+				intensity = cell->intensity[static_cast<uint32_t>(phase)];
+			
+			if (intensity > max_intensity) {
+				max_intensity = intensity;
 				max_direction = to_marker;
 				max_cell = cell;
 			}
