@@ -27,14 +27,14 @@ struct Ant
 	{
 	}
 
-	void update(const float dt, World& world, bool wreak_havoc)
+	void update(const float dt, World& world, bool wreak_havoc, int timestep)
 	{
 		updatePosition(world, dt);
 		if(is_malicious && wreak_havoc)
 		phase = Mode::ToHome;
 
 		if (phase == Mode::ToFood) {
-			checkFood(world);
+			checkFood(world, timestep);
 		}
 
 		last_direction_update += dt;
@@ -77,13 +77,14 @@ struct Ant
 		}
 	}
 
-	void checkFood(World& world)
+	void checkFood(World& world, int timestep)
 	{
 		if (world.markers.isOnFood(position)) {
 			phase = Mode::ToHome;
 			direction.addNow(PI);
 			world.markers.pickFood(position);
 			markers_count = 0.0f;
+			if(!(is_malicious)) std::cout << "Found food at timestep=" << timestep <<"\n"; 
 			return;
 		}
 	}
