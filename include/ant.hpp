@@ -130,9 +130,9 @@ struct Ant
 			/////////////////////////////////////
 			float intensity;
 			if(phase == Mode::ToHell)
-				intensity = cell->intensity[static_cast<uint32_t>(Mode::ToHell)];
+				intensity = cell->intensity[static_cast<uint32_t>(Mode::ToHome)];
 			else if(phase == Mode::ToFood)
-				intensity = cell->intensity[static_cast<uint32_t>(Mode::ToHell)] + cell->intensity[static_cast<uint32_t>(Mode::ToFood)];
+				intensity = cell->intensity[static_cast<uint32_t>(Mode::ToHell)] + cell->intensity[static_cast<uint32_t>(phase)];
 			else
 				intensity = cell->intensity[static_cast<uint32_t>(phase)];
 			

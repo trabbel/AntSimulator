@@ -37,7 +37,7 @@ struct Colony
       }
       else
       {
-          ants.emplace_back(x, y, PI*5/4, true);
+          ants.emplace_back(x, y, 0, true);
 
           const uint64_t index = 4 * i;
           ants_va[index + 0].color = Conf::MALICIOUS_ANT_COLOR;
