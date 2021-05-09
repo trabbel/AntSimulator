@@ -31,7 +31,7 @@ struct Ant
 	{
 		updatePosition(world, dt);
 		if(is_malicious && wreak_havoc)
-		phase = Mode::ToHome;
+		phase = Mode::ToHell;
 
 		if (phase == Mode::ToFood) {
 			checkFood(world);
@@ -142,8 +142,9 @@ struct Ant
 			}
 		}
 		// Update direction
+		
 		if (max_intensity) {
-			if (RNGf::proba(0.4f) && phase == Mode::ToFood) {
+			if (RNGf::proba(0.4f) && (phase == Mode::ToFood || phase == Mode::ToHell)) {
 				max_cell->intensity[static_cast<uint32_t>(phase)] *= 0.99f;
 			}
 			direction = getAngle(max_direction);
