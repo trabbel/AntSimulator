@@ -125,6 +125,9 @@ struct Ant
 				break;
 			}
 			// Check for the most intense marker
+			/////////////////////////////////////
+			////////// C H A N G E   1 //////////
+			/////////////////////////////////////
 			float intensity;
 			if(phase == Mode::ToHell)
 				intensity = cell->intensity[static_cast<uint32_t>(Mode::ToHell)];
@@ -146,7 +149,7 @@ struct Ant
 		// Update direction
 		
 		if (max_intensity) {
-			if (RNGf::proba(0.4f) && (phase == Mode::ToFood || phase == Mode::ToHell)) {
+			if (RNGf::proba(0.4f) && (phase == Mode::ToFood)) {
 				max_cell->intensity[static_cast<uint32_t>(phase)] *= 0.99f;
 			}
 			direction = getAngle(max_direction);
