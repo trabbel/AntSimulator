@@ -9,9 +9,9 @@
 struct WorldCell
 {
 	// Stores the intensity of ToHome and ToFood markers
-	float intensity[2];
+	float intensity[3];
 	// Is the marker permanent ?
-	bool permanent[2];
+	bool permanent[3];
 	// Food quantity in the cell
 	uint32_t food;
 	uint32_t wall;
