@@ -126,8 +126,10 @@ struct Ant
 			}
 			// Check for the most intense marker
 			float intensity;
-			if(phase == Mode::ToHell || phase == Mode::ToFood) 
-				intensity = cell->intensity[static_cast<uint32_t>(Mode::ToFood)] +  cell->intensity[static_cast<uint32_t>(Mode::ToHell)];
+			if(phase == Mode::ToHell)
+				intensity = cell->intensity[static_cast<uint32_t>(Mode::ToHell)];
+			else if(phase == Mode::ToFood)
+				intensity = cell->intensity[static_cast<uint32_t>(Mode::ToHell)] + cell->intensity[static_cast<uint32_t>(Mode::ToFood)];
 			else
 				intensity = cell->intensity[static_cast<uint32_t>(phase)];
 			
@@ -156,8 +158,12 @@ struct Ant
 		markers_count += marker_period;
 		const float coef = 0.01f;
 		const float intensity = 1000.0f * exp(-coef * markers_count);
-		Mode antTrail = is_malicious ? Mode::ToHell : Mode::ToFood;
-		world.addMarker(position, phase == Mode::ToFood ? Mode::ToHome : antTrail, intensity);
+		Mode trace;
+		if(phase == Mode::ToHell)
+			trace = Mode::ToHell;
+		else 
+			trace = phase == Mode::ToFood ? Mode::ToHome : Mode::ToFood;
+		world.addMarker(position, trace, intensity);
 		// else
 		//   world.addMarker(position, Mode::ToFood, intensity);
 		last_marker = 0.0f;
