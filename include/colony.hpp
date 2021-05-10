@@ -9,7 +9,7 @@
 
 struct Colony
 {
-	Colony(float x, float y, uint32_t n, float mal_prob, int mal_timer_delay, float malicious_counter_rise)
+	Colony(float x, float y, uint32_t n, float mal_prob, int mal_timer_delay)
 		: position(x, y)
 		, last_direction_update(0.0f)
 		, ants_va(sf::Quads, 4 * n)
@@ -17,7 +17,6 @@ struct Colony
     , timer_count(0)
     , timer_count2(0)
     , confused_count(0)
-    , counter_rise_fraction(malicious_counter_rise)
 	{
     // std::cout<<std::abs(((double) rand() / (RAND_MAX)));
       // std::cout<<"Normal";
@@ -65,7 +64,7 @@ struct Colony
 
 		for (Ant& ant : ants) {
 			ant.checkColony(position);
-      if(ant.nearColony(position)&&!(ant.is_malicious)){
+      if(ant.phase == Mode::ToHome &&!(ant.is_malicious)){
           confused_count++;
       }
 		}
