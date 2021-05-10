@@ -38,7 +38,7 @@ int main()
   /****************************************************************************************
    ************************ CHANGE THIS FRACTION OF MALICIOUS ANTS ************************
    ****************************************************************************************/
-  float malicious_fraction = 0.25;
+  float malicious_fraction = 0.05;
   int malicious_timer_wait = 100;
   
 	Colony colony(Conf::COLONY_POSITION.x, Conf::COLONY_POSITION.y, Conf::ANTS_COUNT, malicious_fraction, malicious_timer_wait);

@@ -41,6 +41,7 @@ struct WorldRenderer : public AsyncRenderer
 		const sf::Vector3f to_home_color(Conf::TO_HOME_COLOR.r / 255.0f, Conf::TO_HOME_COLOR.g / 255.0f, Conf::TO_HOME_COLOR.b / 255.0f);
 		const sf::Vector3f to_food_color(Conf::TO_FOOD_COLOR.r / 255.0f, Conf::TO_FOOD_COLOR.g / 255.0f, Conf::TO_FOOD_COLOR.b / 255.0f);
 		const sf::Vector3f to_hell_color(Conf::TO_HELL_COLOR.r / 255.0f, Conf::TO_HELL_COLOR.g / 255.0f, Conf::TO_HELL_COLOR.b / 255.0f);
+		const sf::Vector3f counter_color(Conf::COUNTER_PHR_COLOR.r / 255.0f, Conf::COUNTER_PHR_COLOR.g / 255.0f, Conf::COUNTER_PHR_COLOR.b / 255.0f);
 
 		uint64_t i = 0;
 		const float cell_size = to<float>(grid.cell_size);
@@ -53,10 +54,11 @@ struct WorldRenderer : public AsyncRenderer
 					const sf::Vector3f intensity_1_color = intensity_factor * to_home_color * cell.intensity[0];
 					const sf::Vector3f intensity_2_color = intensity_factor * to_food_color * cell.intensity[1];
 					const sf::Vector3f intensity_3_color = intensity_factor * to_hell_color * cell.intensity[2];
+					const sf::Vector3f intensity_4_color = intensity_factor * counter_color * cell.intensity[3];
 					const sf::Vector3f mixed_color(
-						std::min(255.0f, intensity_1_color.x + intensity_2_color.x+ intensity_3_color.x),
-						std::min(255.0f, intensity_1_color.y + intensity_2_color.y+ intensity_3_color.y),
-						std::min(255.0f, intensity_1_color.z + intensity_2_color.z+ intensity_3_color.z)
+						std::min(255.0f, intensity_1_color.x + intensity_2_color.x + intensity_3_color.x + intensity_4_color.x),
+						std::min(255.0f, intensity_1_color.y + intensity_2_color.y + intensity_3_color.y + intensity_4_color.y),
+						std::min(255.0f, intensity_1_color.z + intensity_2_color.z + intensity_3_color.z + intensity_4_color.z)
 					);
 					color = sf::Color(sf::Color(to<uint8_t>(mixed_color.x), to<uint8_t>(mixed_color.y), to<uint8_t>(mixed_color.z)));
 					const float offset = 32.0f;

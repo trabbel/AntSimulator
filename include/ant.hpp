@@ -23,7 +23,9 @@ struct Ant
 		, liberty_coef(RNGf::getRange(0.0001f, 0.001f))
 		, hits(0)
 		, markers_count(0.0f)
-    , is_malicious(malicious)
+	    , is_malicious(malicious)
+		, dilusion_counter(0)
+		, dilusion_patience_threshold(100)
 	{
 	}
 
@@ -49,7 +51,7 @@ struct Ant
 			addMarker(world);
 		}
 
-		direction.update(dt);
+		direction.update(dt);	
 	}
 
 	void updatePosition(World& world, float dt)
@@ -84,7 +86,8 @@ struct Ant
 			direction.addNow(PI);
 			world.markers.pickFood(position);
 			markers_count = 0.0f;
-			if(!(is_malicious)) std::cout << "Found food at timestep=" << timestep <<"\n"; 
+			// if(!(is_malicious)) std::cout << "Found food at timestep=" << timestep <<"\n"; 
+			dilusion_counter = 0;
 			return;
 		}
 	}
@@ -110,6 +113,7 @@ struct Ant
 		WorldCell* max_cell = nullptr;
 		// Sample the world
 		const uint32_t sample_count = 32;
+		bool on_food_path = false;
 		for (uint32_t i(sample_count); i--;) {
 			// Get random point in range
 			const float sample_angle = current_angle + RNGf::getRange(sample_angle_range);
@@ -132,7 +136,7 @@ struct Ant
 			float intensity;
 			if(phase == Mode::ToHell)
 			{
-				float value_1 = cell->intensity[static_cast<uint32_t>(Mode::ToHome)];
+				float value_1 = cell->intensity[static_cast<uint32_t>(Mode::ToFood)];
 				float value_2 = cell->intensity[static_cast<uint32_t>(Mode::ToHell)];
 				value_1 = value_1 == 0 ? 1 : value_1/1000;
 				value_2 = value_2 == 0 ? 1 : value_2/1000;
@@ -159,6 +163,7 @@ struct Ant
 				max_intensity = intensity;
 				max_direction = to_marker;
 				max_cell = cell;
+
 			}
 			// Randomly choose own path
 			if (RNGf::proba(liberty_coef)) {
@@ -170,9 +175,21 @@ struct Ant
 		if (max_intensity) {
 			if (RNGf::proba(0.4f) && (phase == Mode::ToFood)) {
 				max_cell->intensity[static_cast<uint32_t>(phase)] *= 0.99f;
+				if(phase == Mode::ToFood)
+					dilusion_counter++;
+				// std::cout<<dilusion_counter<<"  ";
+				if (dilusion_counter > dilusion_patience_threshold)
+				{
+					// std::cout<<"Okay";
+					const float coef = 0.01f;
+					const float intensity = 1000.0f * exp(-coef * 10);
+					world.addMarker(position, Mode::CounterPhr, intensity);
+				}
 			}
 			direction = getAngle(max_direction);
 		}
+		else
+			dilusion_counter = 0;
 	}
 
 	void addMarker(World& world)
@@ -233,6 +250,8 @@ struct Ant
 	float markers_count;
 	float last_marker;
 	float liberty_coef;
-
+	int dilusion_counter;
+	int dilusion_patience_threshold;
+	float markers_count_dilusion;
   bool is_malicious;
 };
