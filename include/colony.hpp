@@ -54,11 +54,11 @@ struct Colony
     }
 	}
 
-	void update(const float dt, World& world, int timestep)
+	void update(const float dt, World& world)
 	{	
     bool wreak_havoc = timer_count >= mal_timer_delay ? true : false;
 		for (Ant& ant : ants) {
-			ant.update(dt, world, wreak_havoc, timestep);
+			ant.update(dt, world, wreak_havoc, timer_count2);
 		}
 
 		for (Ant& ant : ants) {
@@ -71,7 +71,7 @@ struct Colony
     }
     else
       timer_count ++;
-      timer_count2 ++;
+    timer_count2 ++;
 	}
 
 	void render(sf::RenderTarget& target, const sf::RenderStates& states) const

@@ -90,7 +90,7 @@ int main()
 		const float dt = 0.016f;
 
 		if (!display_manager.pause) {
-			colony.update(dt, world, colony.timer_count2);
+			colony.update(dt, world);
 			world.update(dt);
 		}
 
