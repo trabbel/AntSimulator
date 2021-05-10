@@ -6,17 +6,24 @@
 #include "config.hpp"
 #include "display_manager.hpp"
 
-
+float malicious_fraction;
+int malicious_timer_wait;
+float malicious_counter_rise;
 
 void loadUserConf()
 {
+	
 	std::ifstream conf_file("conf.txt");
 	if (conf_file) {
-		conf_file >> Conf::WIN_WIDTH;
-		conf_file >> Conf::WIN_HEIGHT;
 		conf_file >> Conf::ANTS_COUNT;
+		conf_file >> malicious_fraction;
+		conf_file >> malicious_timer_wait;
+		conf_file >> malicious_counter_rise;
 	}
 	else {
+		malicious_fraction = 0.25;
+		malicious_timer_wait = 100;
+		malicious_counter_rise = 0.25;
 		std::cout << "Couldn't find 'conf.txt', loading default" << std::endl;
 	}
 }
@@ -38,9 +45,8 @@ int main()
   /****************************************************************************************
    ************************ CHANGE THIS FRACTION OF MALICIOUS ANTS ************************
    ****************************************************************************************/
-  float malicious_fraction = 0.25;
-  int malicious_timer_wait = 100;
-  float malicious_counter_rise = 0.25;
+  
+  
 	Colony colony(Conf::COLONY_POSITION.x, Conf::COLONY_POSITION.y, Conf::ANTS_COUNT, malicious_fraction, malicious_timer_wait, malicious_counter_rise);
 	for (uint32_t i(0); i < 64; ++i) {
 		float angle = float(i) / 64.0f * (2.0f * PI);
@@ -91,6 +97,9 @@ int main()
 
 		if (!display_manager.pause) {
 			colony.update(dt, world);
+			if(colony.timer_count2%100 == 0){
+				std::cout << "Confused ant=" << colony.confused_count<< std::endl;
+			}
 			world.update(dt);
 		}
 
@@ -99,6 +108,7 @@ int main()
 		display_manager.draw();
 
 		window.display();
+		if(colony.timer_count2>10000) break;
 	}
 
 	// Free textures

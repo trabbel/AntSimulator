@@ -27,14 +27,14 @@ struct Ant
 	{
 	}
 
-	void update(const float dt, World& world, bool wreak_havoc)
+	void update(const float dt, World& world, bool wreak_havoc, int timestep)
 	{
 		updatePosition(world, dt);
 		if(is_malicious && wreak_havoc)
 		phase = Mode::ToHell;
 
 		if (phase == Mode::ToFood) {
-			checkFood(world);
+			checkFood(world, timestep);
 		}
 
 		last_direction_update += dt;
@@ -77,13 +77,14 @@ struct Ant
 		}
 	}
 
-	void checkFood(World& world)
+	void checkFood(World& world, int timestep)
 	{
 		if (world.markers.isOnFood(position)) {
 			phase = Mode::ToHome;
 			direction.addNow(PI);
 			world.markers.pickFood(position);
 			markers_count = 0.0f;
+			if(!(is_malicious)) std::cout << "Found food at timestep=" << timestep <<"\n";
 			return;
 		}
 	}
@@ -98,7 +99,14 @@ struct Ant
 			markers_count = 0.0f;
 		}
 	}
-
+	bool nearColony(const sf::Vector2f colony_position, float atol = 15.0f){
+		if (getLength(position - colony_position) < colony_size + atol) {
+			if (phase == Mode::ToFood) {
+				return true;
+			}	
+		}
+		return false;
+	}
 	void findMarker(World& world, float dt)
 	{
 		// Init
@@ -232,6 +240,5 @@ struct Ant
 	float markers_count;
 	float last_marker;
 	float liberty_coef;
-
   bool is_malicious;
 };

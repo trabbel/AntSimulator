@@ -15,6 +15,8 @@ struct Colony
 		, ants_va(sf::Quads, 4 * n)
     , mal_timer_delay(mal_timer_delay)
     , timer_count(0)
+    , timer_count2(0)
+    , confused_count(0)
     , counter_rise_fraction(malicious_counter_rise)
 	{
     // std::cout<<std::abs(((double) rand() / (RAND_MAX)));
@@ -55,13 +57,17 @@ struct Colony
 
 	void update(const float dt, World& world)
 	{	
+    confused_count = 0;
     bool wreak_havoc = timer_count >= mal_timer_delay ? true : false;
 		for (Ant& ant : ants) {
-			ant.update(dt, world, wreak_havoc);
+			ant.update(dt, world, wreak_havoc, timer_count2);
 		}
 
 		for (Ant& ant : ants) {
 			ant.checkColony(position);
+      if(ant.nearColony(position)&&!(ant.is_malicious)){
+          confused_count++;
+      }
 		}
     if(wreak_havoc)
     {
@@ -70,6 +76,7 @@ struct Colony
     }
     else
       timer_count ++;
+    timer_count2 ++;
 	}
 
 	void render(sf::RenderTarget& target, const sf::RenderStates& states) const
@@ -98,5 +105,7 @@ struct Colony
 
   int mal_timer_delay;
   int timer_count;
+  int timer_count2;
+  int confused_count;
   float counter_rise_fraction;
 };
