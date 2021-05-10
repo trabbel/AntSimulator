@@ -40,8 +40,8 @@ int main()
    ****************************************************************************************/
   float malicious_fraction = 0.25;
   int malicious_timer_wait = 100;
-  float malicious_counter_rise = 0.25;
-	Colony colony(Conf::COLONY_POSITION.x, Conf::COLONY_POSITION.y, Conf::ANTS_COUNT, malicious_fraction, malicious_timer_wait, malicious_counter_rise);
+  
+	Colony colony(Conf::COLONY_POSITION.x, Conf::COLONY_POSITION.y, Conf::ANTS_COUNT, malicious_fraction, malicious_timer_wait);
 	for (uint32_t i(0); i < 64; ++i) {
 		float angle = float(i) / 64.0f * (2.0f * PI);
 		world.addMarker(colony.position + 16.0f * sf::Vector2f(cos(angle), sin(angle)), Mode::ToHome, 10.0f, true);
@@ -57,6 +57,8 @@ int main()
 			for (uint32_t y(0); y < food_map.getSize().y; ++y) {
 				const sf::Vector2f position = float(world.markers.cell_size) * sf::Vector2f(to<float>(x), to<float>(y));
 				if (food_map.getPixel(x, y).g > 100) {
+					///////////////////
+					// FOOD POSITION
 					world.addFoodAt(position.x/10, position.y/10, 5);
 				} else if (food_map.getPixel(x, y).r > 100) {
 					world.addWall(position);

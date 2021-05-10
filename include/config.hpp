@@ -66,6 +66,9 @@ template<typename T>
 uint32_t DefaultConf<T>::WORLD_WIDTH = 1920;
 template<typename T>
 uint32_t DefaultConf<T>::WORLD_HEIGHT = 1080;
+
+//////////////////
+/// ANT NUMBER ///
 template<typename T>
 uint32_t DefaultConf<T>::ANTS_COUNT = 1024;
 template<typename T>
