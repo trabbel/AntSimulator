@@ -25,7 +25,8 @@ struct Ant
 		, markers_count(0.0f)
 	    , is_malicious(malicious)
 		, dilusion_counter(0)
-		, dilusion_patience_threshold(100)
+		, dilusion_patience_threshold(200)
+		, counter_thresh(850)
 	{
 	}
 
@@ -86,7 +87,6 @@ struct Ant
 			direction.addNow(PI);
 			world.markers.pickFood(position);
 			markers_count = 0.0f;
-			// if(!(is_malicious)) std::cout << "Found food at timestep=" << timestep <<"\n"; 
 			dilusion_counter = 0;
 			return;
 		}
@@ -147,14 +147,17 @@ struct Ant
 			}
 			else if(phase == Mode::ToFood)
 			{
-				float value_1 = cell->intensity[static_cast<uint32_t>(Mode::ToFood)];
-				float value_2 = cell->intensity[static_cast<uint32_t>(Mode::ToHell)];
-				value_1 = value_1 == 0 ? 1 : value_1/1000;
-				value_2 = value_2 == 0 ? 1 : value_2/1000;
-				if(value_1 == 1 && value_2 == 1)
-					intensity = 0;
-				else
-					intensity = (1000 * value_1 * value_2);
+				if (cell->intensity[static_cast<uint32_t>(Mode::CounterPhr)] < counter_thresh)
+				{
+					float value_1 = cell->intensity[static_cast<uint32_t>(Mode::ToFood)];
+					float value_2 = cell->intensity[static_cast<uint32_t>(Mode::ToHell)];
+					value_1 = value_1 == 0 ? 1 : value_1/1000;
+					value_2 = value_2 == 0 ? 1 : value_2/1000;
+					if(value_1 == 1 && value_2 == 1)
+						intensity = 0;
+					else
+						intensity = (1000 * value_1 * value_2);
+				}
 			}
 			else
 				intensity = cell->intensity[static_cast<uint32_t>(phase)];
@@ -253,5 +256,6 @@ struct Ant
 	int dilusion_counter;
 	int dilusion_patience_threshold;
 	float markers_count_dilusion;
+	float counter_thresh;
   bool is_malicious;
 };

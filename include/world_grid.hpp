@@ -29,10 +29,12 @@ struct WorldCell
 		intensity[0] -= (!permanent[0]) * dt;
 		intensity[1] -= (!permanent[1]) * dt;
 		intensity[2] -= (!permanent[2]) * dt;
+		intensity[3] -= (!permanent[3]) * dt;
 		// Avoid negative values
 		intensity[0] = std::max(0.0f, intensity[0]);
 		intensity[1] = std::max(0.0f, intensity[1]);
 		intensity[2] = std::max(0.0f, intensity[2]);
+		intensity[3] = std::max(0.0f, intensity[3]);
 		// Remove food marker if no food
 		intensity[1] = intensity[1] * to<float>(!bool(!food && permanent[1]));
 		permanent[1] &= to<bool>(food);
