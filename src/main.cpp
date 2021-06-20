@@ -6,7 +6,8 @@
 #include "config.hpp"
 #include "display_manager.hpp"
 
-bool DISPLAY_GUI = false;
+bool DISPLAY_GUI = true;
+int simulationTime = 10000;
   
 void loadUserConf(float& malicious_fraction, int& malicious_timer_wait)
 {	
@@ -23,16 +24,21 @@ void loadUserConf(float& malicious_fraction, int& malicious_timer_wait)
 	}
 }
 
+void updateColony(World& world, Colony& colony)
+{
+	const static float dt = 0.016f;
+	colony.update(dt, world);
+	if(colony.timer_count2%100 == 0){
+		std::cout << "Foraged ant=" << colony.confused_count<< std::endl;
+	}
+	world.update(dt);
+}
 void simulateAnts(World& world, Colony& colony)
 {
 	const float dt = 0.016f;
-	for(int i = 0; i<10000; i++)
+	for(int i = 0; i<simulationTime; i++)
 	{
-		colony.update(dt, world);			
-		if(colony.timer_count2%100 == 0)
-		std::cout << "Foraged ant=" << colony.confused_count<< std::endl;
-		world.update(dt);
-		// std::cout<<i;
+		updateColony(world, colony);
 	}
 }
 
@@ -69,14 +75,8 @@ void displaySimulation(World& world, Colony& colony)
 			}
 		}
 
-		const float dt = 0.016f;
-
 		if (!display_manager.pause) {
-			colony.update(dt, world);
-			if(colony.timer_count2%100 == 0){
-				std::cout << "Foraged ant=" << colony.confused_count<< std::endl;
-			}
-			world.update(dt);
+			updateColony(world, colony);
 		}
 
 		window.clear(sf::Color(94, 87, 87));
@@ -84,7 +84,7 @@ void displaySimulation(World& world, Colony& colony)
 		display_manager.draw();
 
 		window.display();
-		if(colony.timer_count2>10000) break;
+		if(colony.timer_count2>simulationTime) break;
 	}
 }
 
