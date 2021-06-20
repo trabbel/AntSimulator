@@ -6,7 +6,7 @@
 #include "config.hpp"
 #include "display_manager.hpp"
 
-
+bool DISPLAY_GUI = false;
 
 void loadUserConf()
 {
@@ -21,51 +21,27 @@ void loadUserConf()
 	}
 }
 
-
-int main()
+void simulateAnts(World& world, Colony& colony)
 {
-	Conf::loadTextures();
-	loadUserConf();
+	const float dt = 0.016f;
+	for(int i = 0; i<1000; i++)
+	{
+		colony.update(dt, world);
+		world.update(dt);
+		std::cout<<i;
+	}
+}
 
+void displaySimulation(World& world, Colony& colony)
+{
 	sf::ContextSettings settings;
 	settings.antialiasingLevel = 4;
 	sf::RenderWindow window(sf::VideoMode(Conf::WIN_WIDTH, Conf::WIN_HEIGHT), "AntSim", sf::Style::Fullscreen, settings);
 	window.setFramerateLimit(60);
 
-	World world(Conf::WORLD_WIDTH, Conf::WORLD_HEIGHT);
-
-
-  /****************************************************************************************
-   ************************ CHANGE THIS FRACTION OF MALICIOUS ANTS ************************
-   ****************************************************************************************/
-  float malicious_fraction = 0.05;
-  int malicious_timer_wait = 100;
-  
-	Colony colony(Conf::COLONY_POSITION.x, Conf::COLONY_POSITION.y, Conf::ANTS_COUNT, malicious_fraction, malicious_timer_wait);
-	for (uint32_t i(0); i < 64; ++i) {
-		float angle = float(i) / 64.0f * (2.0f * PI);
-		world.addMarker(colony.position + 16.0f * sf::Vector2f(cos(angle), sin(angle)), Mode::ToHome, 10.0f, true);
-	}
-	
 	DisplayManager display_manager(window, window, world, colony);
 
 	sf::Vector2f last_clic;
-
-	sf::Image food_map;
-	if (food_map.loadFromFile("map.bmp")) {
-		for (uint32_t x(0); x < food_map.getSize().x; ++x) {
-			for (uint32_t y(0); y < food_map.getSize().y; ++y) {
-				const sf::Vector2f position = float(world.markers.cell_size) * sf::Vector2f(to<float>(x), to<float>(y));
-				if (food_map.getPixel(x, y).g > 100) {
-					///////////////////
-					// FOOD POSITION
-					world.addFoodAt(position.x/10, position.y/10, 5);
-				} else if (food_map.getPixel(x, y).r > 100) {
-					world.addWall(position);
-				}
-			}
-		}
-	}
 
 	while (window.isOpen())
 	{
@@ -102,6 +78,49 @@ int main()
 
 		window.display();
 	}
+}
+
+int main()
+{
+	Conf::loadTextures();
+	loadUserConf();
+
+
+	World world(Conf::WORLD_WIDTH, Conf::WORLD_HEIGHT);
+
+
+  /****************************************************************************************
+   ************************ CHANGE THIS FRACTION OF MALICIOUS ANTS ************************
+   ****************************************************************************************/
+  float malicious_fraction = 0.05;
+  int malicious_timer_wait = 100;
+  
+	Colony colony(Conf::COLONY_POSITION.x, Conf::COLONY_POSITION.y, Conf::ANTS_COUNT, malicious_fraction, malicious_timer_wait);
+	for (uint32_t i(0); i < 64; ++i) {
+		float angle = float(i) / 64.0f * (2.0f * PI);
+		world.addMarker(colony.position + 16.0f * sf::Vector2f(cos(angle), sin(angle)), Mode::ToHome, 10.0f, true);
+	}	
+
+	sf::Image food_map;
+	if (food_map.loadFromFile("map.bmp")) {
+		for (uint32_t x(0); x < food_map.getSize().x; ++x) {
+			for (uint32_t y(0); y < food_map.getSize().y; ++y) {
+				const sf::Vector2f position = float(world.markers.cell_size) * sf::Vector2f(to<float>(x), to<float>(y));
+				if (food_map.getPixel(x, y).g > 100) {
+					///////////////////
+					// FOOD POSITION
+					world.addFoodAt(position.x/10, position.y/10, 5);
+				} else if (food_map.getPixel(x, y).r > 100) {
+					world.addWall(position);
+				}
+			}
+		}
+	}
+
+	if(DISPLAY_GUI)
+		displaySimulation(world, colony);
+	else
+		simulateAnts(world, colony);
 
 	// Free textures
 	Conf::freeTextures();
