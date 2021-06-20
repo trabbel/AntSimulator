@@ -16,6 +16,7 @@ struct Colony
     , mal_timer_delay(mal_timer_delay)
     , timer_count(0)
     , timer_count2(0)
+    , confused_count(0)
 	{
     // std::cout<<std::abs(((double) rand() / (RAND_MAX)));
       // std::cout<<"Normal";
@@ -57,6 +58,7 @@ struct Colony
 
 	void update(const float dt, World& world)
 	{	
+    confused_count = 0;
     bool wreak_havoc = timer_count >= mal_timer_delay ? true : false;
 		for (Ant& ant : ants) {
 			ant.update(dt, world, wreak_havoc, timer_count2);
@@ -64,6 +66,9 @@ struct Colony
 
 		for (Ant& ant : ants) {
 			ant.checkColony(position);
+      if(ant.phase == Mode::ToHome &&!(ant.is_malicious)){
+          confused_count++;
+      }
 		}
     if(wreak_havoc)
     {
@@ -101,5 +106,6 @@ struct Colony
   int mal_timer_delay;
   int timer_count;
   int timer_count2;
+  int confused_count;
   float counter_rise_fraction;
 };

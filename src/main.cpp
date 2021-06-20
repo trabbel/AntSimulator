@@ -7,16 +7,18 @@
 #include "display_manager.hpp"
 
 bool DISPLAY_GUI = false;
-
-void loadUserConf()
-{
+  
+void loadUserConf(float& malicious_fraction, int& malicious_timer_wait)
+{	
 	std::ifstream conf_file("conf.txt");
 	if (conf_file) {
-		conf_file >> Conf::WIN_WIDTH;
-		conf_file >> Conf::WIN_HEIGHT;
+		conf_file >> malicious_fraction;
+		conf_file >> malicious_timer_wait;
 		conf_file >> Conf::ANTS_COUNT;
 	}
 	else {
+		malicious_fraction = 0.25;
+		malicious_timer_wait = 100;
 		std::cout << "Couldn't find 'conf.txt', loading default" << std::endl;
 	}
 }
@@ -24,11 +26,13 @@ void loadUserConf()
 void simulateAnts(World& world, Colony& colony)
 {
 	const float dt = 0.016f;
-	for(int i = 0; i<1000; i++)
+	for(int i = 0; i<10000; i++)
 	{
-		colony.update(dt, world);
+		colony.update(dt, world);			
+		if(colony.timer_count2%100 == 0)
+		std::cout << "Foraged ant=" << colony.confused_count<< std::endl;
 		world.update(dt);
-		std::cout<<i;
+		// std::cout<<i;
 	}
 }
 
@@ -69,6 +73,9 @@ void displaySimulation(World& world, Colony& colony)
 
 		if (!display_manager.pause) {
 			colony.update(dt, world);
+			if(colony.timer_count2%100 == 0){
+				std::cout << "Foraged ant=" << colony.confused_count<< std::endl;
+			}
 			world.update(dt);
 		}
 
@@ -77,13 +84,13 @@ void displaySimulation(World& world, Colony& colony)
 		display_manager.draw();
 
 		window.display();
+		if(colony.timer_count2>10000) break;
 	}
 }
 
 int main()
 {
 	Conf::loadTextures();
-	loadUserConf();
 
 
 	World world(Conf::WORLD_WIDTH, Conf::WORLD_HEIGHT);
@@ -94,6 +101,7 @@ int main()
    ****************************************************************************************/
   float malicious_fraction = 0.05;
   int malicious_timer_wait = 100;
+	loadUserConf(malicious_fraction, malicious_timer_wait);
   
 	Colony colony(Conf::COLONY_POSITION.x, Conf::COLONY_POSITION.y, Conf::ANTS_COUNT, malicious_fraction, malicious_timer_wait);
 	for (uint32_t i(0); i < 64; ++i) {

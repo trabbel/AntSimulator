@@ -88,6 +88,7 @@ struct Ant
 			world.markers.pickFood(position);
 			markers_count = 0.0f;
 			dilusion_counter = 0;
+			if(!(is_malicious)) std::cout << "Found food at timestep=" << timestep <<"\n";
 			return;
 		}
 	}
@@ -102,7 +103,14 @@ struct Ant
 			markers_count = 0.0f;
 		}
 	}
-
+	bool nearColony(const sf::Vector2f colony_position, float atol = 15.0f){
+		if (getLength(position - colony_position) < colony_size + atol) {
+			if (phase == Mode::ToFood) {
+				return true;
+			}	
+		}
+		return false;
+	}
 	void findMarker(World& world, float dt)
 	{
 		// Init
