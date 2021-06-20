@@ -88,7 +88,7 @@ struct Ant
 			world.markers.pickFood(position);
 			markers_count = 0.0f;
 			dilusion_counter = 0;
-			if(!(is_malicious)) std::cout << "Found food at timestep=" << timestep <<"\n";
+			// if(!(is_malicious)) std::cout << "Found food at timestep=" << timestep <<"\n";
 			return;
 		}
 	}

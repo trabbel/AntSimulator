@@ -6,7 +6,7 @@
 #include "config.hpp"
 #include "display_manager.hpp"
 
-bool DISPLAY_GUI = true;
+bool DISPLAY_GUI = false;
 int simulationTime = 10000;
   
 void loadUserConf(float& malicious_fraction, int& malicious_timer_wait)
@@ -29,17 +29,22 @@ void updateColony(World& world, Colony& colony)
 	const static float dt = 0.016f;
 	colony.update(dt, world);
 	if(colony.timer_count2%100 == 0){
-		std::cout << "Foraged ant=" << colony.confused_count<< std::endl;
+		// std::cout << "Foraged ant=" << colony.confused_count<< std::endl;
 	}
 	world.update(dt);
 }
 void simulateAnts(World& world, Colony& colony)
 {
 	const float dt = 0.016f;
+	std::ofstream myfile;
+	myfile.open ("../AntSimData.csv");
 	for(int i = 0; i<simulationTime; i++)
 	{
 		updateColony(world, colony);
+		if(colony.timer_count2%10 == 0)
+			myfile << colony.timer_count2 << "," << colony.confused_count<< std::endl;
 	}
+	myfile.close();
 }
 
 void displaySimulation(World& world, Colony& colony)
