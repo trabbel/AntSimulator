@@ -6,10 +6,13 @@
 #include "config.hpp"
 #include "display_manager.hpp"
 
-bool DISPLAY_GUI = false;
-int simulationTime = 10000;
+const bool DISPLAY_GUI = true;
+const int SIMULATION_STEPS = 10000;
+const int SIMULATION_ITERATIONS = 1;
+float malicious_fraction = 0.05;
+int malicious_timer_wait = 100;	
   
-void loadUserConf(float& malicious_fraction, int& malicious_timer_wait)
+void loadUserConf()
 {	
 	std::ifstream conf_file("conf.txt");
 	if (conf_file) {
@@ -24,31 +27,74 @@ void loadUserConf(float& malicious_fraction, int& malicious_timer_wait)
 	}
 }
 
+void initWorld(World& world, Colony& colony)
+{
+	for (uint32_t i(0); i < 64; ++i) {
+		float angle = float(i) / 64.0f * (2.0f * PI);
+		world.addMarker(colony.position + 16.0f * sf::Vector2f(cos(angle), sin(angle)), Mode::ToHome, 10.0f, true);
+	}	
+
+	sf::Image food_map;
+	if (food_map.loadFromFile("map.bmp")) {
+		for (uint32_t x(0); x < food_map.getSize().x; ++x) {
+			for (uint32_t y(0); y < food_map.getSize().y; ++y) {
+				const sf::Vector2f position = float(world.markers.cell_size) * sf::Vector2f(to<float>(x), to<float>(y));
+				if (food_map.getPixel(x, y).g > 100) {
+					///////////////////
+					// FOOD POSITION
+					world.addFoodAt(position.x/10, position.y/10, 5);
+				} else if (food_map.getPixel(x, y).r > 100) {
+					world.addWall(position);
+				}
+			}
+		}
+	}
+
+}
+
 void updateColony(World& world, Colony& colony)
 {
 	const static float dt = 0.016f;
 	colony.update(dt, world);
+	initWorld(world, colony);
+
 	if(colony.timer_count2%100 == 0){
 		// std::cout << "Foraged ant=" << colony.confused_count<< std::endl;
 	}
 	world.update(dt);
 }
-void simulateAnts(World& world, Colony& colony)
+
+void simulateAnts()
 {
-	const float dt = 0.016f;
+	const static float dt = 0.016f;
+
 	std::ofstream myfile;
 	myfile.open ("../AntSimData.csv");
-	for(int i = 0; i<simulationTime; i++)
+	
+	World world(Conf::WORLD_WIDTH, Conf::WORLD_HEIGHT);
+	Colony colony(Conf::COLONY_POSITION.x, Conf::COLONY_POSITION.y, Conf::ANTS_COUNT, malicious_fraction, malicious_timer_wait);
+	initWorld(world, colony);	
+	for(int i = 0; i<SIMULATION_ITERATIONS; i++)
 	{
-		updateColony(world, colony);
-		if(colony.timer_count2%10 == 0)
-			myfile << colony.timer_count2 << "," << colony.confused_count<< std::endl;
+		
+		for(int j = 0; j<SIMULATION_STEPS; j++)
+		{
+			updateColony(world, colony);
+
+			if(colony.timer_count2%10 == 0)
+				myfile  << colony.confused_count<< ",";
+		}
+
+		myfile  << std::endl;
 	}
 	myfile.close();
 }
 
-void displaySimulation(World& world, Colony& colony)
+void displaySimulation()
 {
+	World world(Conf::WORLD_WIDTH, Conf::WORLD_HEIGHT);
+	Colony colony(Conf::COLONY_POSITION.x, Conf::COLONY_POSITION.y, Conf::ANTS_COUNT, malicious_fraction, malicious_timer_wait);
+
 	sf::ContextSettings settings;
 	settings.antialiasingLevel = 4;
 	sf::RenderWindow window(sf::VideoMode(Conf::WIN_WIDTH, Conf::WIN_HEIGHT), "AntSim", sf::Style::Fullscreen, settings);
@@ -89,51 +135,23 @@ void displaySimulation(World& world, Colony& colony)
 		display_manager.draw();
 
 		window.display();
-		if(colony.timer_count2>simulationTime) break;
+		if(colony.timer_count2>SIMULATION_STEPS) break;
 	}
 }
 
 int main()
 {
 	Conf::loadTextures();
-
-
-	World world(Conf::WORLD_WIDTH, Conf::WORLD_HEIGHT);
-
-
   /****************************************************************************************
    ************************ CHANGE THIS FRACTION OF MALICIOUS ANTS ************************
    ****************************************************************************************/
-  float malicious_fraction = 0.05;
-  int malicious_timer_wait = 100;
-	loadUserConf(malicious_fraction, malicious_timer_wait);
-  
-	Colony colony(Conf::COLONY_POSITION.x, Conf::COLONY_POSITION.y, Conf::ANTS_COUNT, malicious_fraction, malicious_timer_wait);
-	for (uint32_t i(0); i < 64; ++i) {
-		float angle = float(i) / 64.0f * (2.0f * PI);
-		world.addMarker(colony.position + 16.0f * sf::Vector2f(cos(angle), sin(angle)), Mode::ToHome, 10.0f, true);
-	}	
-
-	sf::Image food_map;
-	if (food_map.loadFromFile("map.bmp")) {
-		for (uint32_t x(0); x < food_map.getSize().x; ++x) {
-			for (uint32_t y(0); y < food_map.getSize().y; ++y) {
-				const sf::Vector2f position = float(world.markers.cell_size) * sf::Vector2f(to<float>(x), to<float>(y));
-				if (food_map.getPixel(x, y).g > 100) {
-					///////////////////
-					// FOOD POSITION
-					world.addFoodAt(position.x/10, position.y/10, 5);
-				} else if (food_map.getPixel(x, y).r > 100) {
-					world.addWall(position);
-				}
-			}
-		}
-	}
+	
+	loadUserConf();
 
 	if(DISPLAY_GUI)
-		displaySimulation(world, colony);
+		displaySimulation();
 	else
-		simulateAnts(world, colony);
+		simulateAnts();
 
 	// Free textures
 	Conf::freeTextures();
