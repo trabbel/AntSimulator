@@ -11,60 +11,9 @@
 #include <iostream>     // for console output
 #include <string>       // for std::string
 
-#include <boost/date_time/posix_time/posix_time.hpp>
-
-
-//-----------------------------------------------------------------------------
-// Format current time (calculated as an offset in current day) in this form:
-//
-//     "hh:mm:ss.SSS" (where "SSS" are milliseconds)
-//-----------------------------------------------------------------------------
-std::string now_str()
-{
-    // Get current time from the clock, using microseconds resolution
-    const boost::posix_time::ptime now = 
-        boost::posix_time::microsec_clock::local_time();
-
-    // Get the time offset in current day
-    const boost::posix_time::time_duration td = now.time_of_day();
-
-    //
-    // Extract hours, minutes, seconds and milliseconds.
-    //
-    // Since there is no direct accessor ".milliseconds()",
-    // milliseconds are computed _by difference_ between total milliseconds
-    // (for which there is an accessor), and the hours/minutes/seconds
-    // values previously fetched.
-    //
-    const long hours        = td.hours();
-    const long minutes      = td.minutes();
-    const long seconds      = td.seconds();
-    const long milliseconds = td.total_milliseconds() -
-                              ((hours * 3600 + minutes * 60 + seconds) * 1000);
-
-    //
-    // Format like this:
-    //
-    //      hh:mm:ss.SSS
-    //
-    // e.g. 02:15:40:321
-    //
-    //      ^          ^
-    //      |          |
-    //      123456789*12
-    //      ---------10-     --> 12 chars + \0 --> 13 chars should suffice
-    //  
-    // 
-    char buf[40];
-    sprintf(buf, "%02ld:%02ld:%02ld.%03ld", 
-        hours, minutes, seconds, milliseconds);
-
-    return buf;
-}
-
 const bool DISPLAY_GUI = false;
-const int SIMULATION_STEPS = 1000;
-const int SIMULATION_ITERATIONS = 2;
+const int SIMULATION_STEPS = 10000;
+const int SIMULATION_ITERATIONS = 5;
 float malicious_fraction = 0.05;
 int malicious_timer_wait = 100;	
   
@@ -112,8 +61,7 @@ void updateColony(World& world, Colony& colony)
 {
 	const static float dt = 0.016f;
 	colony.update(dt, world);
-	initWorld(world, colony);
-
+	
 	if(colony.timer_count2%100 == 0){
 		// std::cout << "Foraged ant=" << colony.confused_count<< std::endl;
 	}
@@ -123,17 +71,14 @@ void updateColony(World& world, Colony& colony)
 void simulateAnts()
 {
 	const static float dt = 0.016f;
-	std::cout << "In Sim" << now_str() << '\n'; 
 	std::ofstream myfile;
 	myfile.open ("../AntSimData.csv");
-	std::cout << "File Open" << now_str() << '\n'; 
-	World world(Conf::WORLD_WIDTH, Conf::WORLD_HEIGHT);
-	Colony colony(Conf::COLONY_POSITION.x, Conf::COLONY_POSITION.y, Conf::ANTS_COUNT, malicious_fraction, malicious_timer_wait);
-	initWorld(world, colony);	
-	std::cout << "World colon init" << now_str() << '\n'; 
 	for(int i = 0; i<SIMULATION_ITERATIONS; i++)
 	{
-		std::cout << "Iterating" << now_str() << '\n'; 
+		World world(Conf::WORLD_WIDTH, Conf::WORLD_HEIGHT);
+		Colony colony(Conf::COLONY_POSITION.x, Conf::COLONY_POSITION.y, Conf::ANTS_COUNT, malicious_fraction, malicious_timer_wait);
+		initWorld(world, colony);	
+		
 		for(int j = 0; j<SIMULATION_STEPS; j++)
 		{
 			updateColony(world, colony);
@@ -141,7 +86,6 @@ void simulateAnts()
 			if(colony.timer_count2%10 == 0)
 				myfile  << colony.confused_count<< ",";
 		}
-		std::cout << "Iterating" << now_str() << '\n'; 
 		myfile  << std::endl;
 	}
 	myfile.close();
@@ -154,6 +98,7 @@ void displaySimulation()
 
 	sf::ContextSettings settings;
 	settings.antialiasingLevel = 4;
+	initWorld(world, colony);
 	sf::RenderWindow window(sf::VideoMode(Conf::WIN_WIDTH, Conf::WIN_HEIGHT), "AntSim", sf::Style::Fullscreen, settings);
 	window.setFramerateLimit(60);
 
@@ -204,7 +149,6 @@ int main()
    ****************************************************************************************/
 	
 	loadUserConf();
-	std::cout << now_str() << '\n'; 
 	if(DISPLAY_GUI)
 		displaySimulation();
 	else
