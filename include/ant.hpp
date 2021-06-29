@@ -14,7 +14,19 @@ struct Ant
 {
 	Ant() = default;
 
-	Ant(float x, float y, float angle, bool malicious=false)
+	/**
+	 * @brief Construct a new Ant object
+	 * 
+	 * @param x Colony X position
+	 * @param y Colony Y position
+	 * @param angle Starting angle of the ant (wrt colony)
+	 * @param counter_pheromone_arg Will the ants secret counter pheromone?
+	 * @param malicious is the current ant malicious?
+	 * @param ant_tracing_pattern_arg Should malicious ants trace food pheromone or roam randomly
+	 * @param hell_phermn_intensity_multiplier_arg multiplier for the intensity of TO_HELL pheromone
+	 */
+	Ant(float x, float y, float angle, bool counter_pheromone_arg = false,
+		bool malicious=false, AntTracingPattern ant_tracing_pattern_arg = AntTracingPattern::RANDOM, float hell_phermn_intensity_multiplier_arg = 1.0)
 		: position(x, y)
 		, direction(angle)
 		, last_direction_update(RNGf::getUnder(1.0f) * direction_update_period)
@@ -27,6 +39,9 @@ struct Ant
 		, dilusion_counter(0)
 		, dilusion_patience_threshold(200)
 		, counter_thresh(850)
+		, ant_tracing_pattern(ant_tracing_pattern_arg)
+		, counter_pheromone(counter_pheromone_arg)
+		, hell_phermn_intensity_multiplier(hell_phermn_intensity_multiplier_arg)
 	{
 	}
 
@@ -138,14 +153,20 @@ struct Ant
 				break;
 			}
 			// Check for the most intense marker
-			/////////////////////////////////////
-			////////// C H A N G E   1 //////////
-			/////////////////////////////////////
 			float intensity;
 			if(phase == Mode::ToHell)
 			{
-				float value_1 = cell->intensity[static_cast<uint32_t>(Mode::ToFood)];
-				float value_2 = cell->intensity[static_cast<uint32_t>(Mode::ToHell)];
+				float value_1, value_2;
+				if(ant_tracing_pattern == AntTracingPattern::RANDOM)
+				{
+					value_1 = 0;
+					value_2 = 0;
+				}
+				else
+				{
+					value_1 = cell->intensity[static_cast<uint32_t>(Mode::ToFood)];
+					value_2 = cell->intensity[static_cast<uint32_t>(Mode::ToHell)];
+				}
 				value_1 = value_1 == 0 ? 1 : value_1/1000;
 				value_2 = value_2 == 0 ? 1 : value_2/1000;
 				if(value_1 == 1 && value_2 == 1)
@@ -189,7 +210,7 @@ struct Ant
 				if(phase == Mode::ToFood)
 					dilusion_counter++;
 				// std::cout<<dilusion_counter<<"  ";
-				if (dilusion_counter > dilusion_patience_threshold)
+				if (dilusion_counter > dilusion_patience_threshold && counter_pheromone)
 				{
 					// std::cout<<"Okay";
 					const float coef = 0.01f;
@@ -207,10 +228,13 @@ struct Ant
 	{
 		markers_count += marker_period;
 		const float coef = 0.01f;
-		const float intensity = 1000.0f * exp(-coef * markers_count);
+		float intensity = 1000.0f * exp(-coef * markers_count);
 		Mode trace;
 		if(phase == Mode::ToHell)
+		{
 			trace = Mode::ToHell;
+			intensity *= hell_phermn_intensity_multiplier;
+		}
 		else 
 			trace = phase == Mode::ToFood ? Mode::ToHome : Mode::ToFood;
 		world.addMarker(position, trace, intensity);
@@ -265,5 +289,9 @@ struct Ant
 	int dilusion_patience_threshold;
 	float markers_count_dilusion;
 	float counter_thresh;
-  bool is_malicious;
+	bool is_malicious;
+	bool malicious_ants_focus;
+	AntTracingPattern ant_tracing_pattern;
+	bool counter_pheromone;
+	float hell_phermn_intensity_multiplier;
 };

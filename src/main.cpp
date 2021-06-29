@@ -11,12 +11,27 @@
 #include <iostream>     // for console output
 #include <string>       // for std::string
 
-const bool DISPLAY_GUI = false;
-const int SIMULATION_STEPS = 10000;
+/****************************************************************************************
+************************ CHANGE THESE PARAMETERS FOR TRIALS ************************
+****************************************************************************************/
+/*
+* @param malicious_fraction:: Probability of an ant being malicious (fraction of ants being malicious)
+* @param malicious_timer_wait:: Delay after which the attack is launched
+* @param malicious_ants_focus::  Should the attack be focused towards food
+* @param ant_tracing_pattern::   Should malicious ants trace food pheromone or roam randomly
+* @param counter_pheromone:: Will the ants secret counter pheromone?
+* @param hell_phermn_intensity_multiplier:: multiplier for the intensity of TO_HELL pheromone
+*/
+const bool DISPLAY_GUI = true;
+const int SIMULATION_STEPS = 10000;		// Only used in the data recording, NOT IN GUI
 const int SIMULATION_ITERATIONS = 5;
 float malicious_fraction = 0.05;
 int malicious_timer_wait = 100;	
-  
+bool malicious_ants_focus = false;
+AntTracingPattern ant_tracing_pattern = AntTracingPattern::FOOD;
+bool counter_pheromone = true;
+float hell_phermn_intensity_multiplier = 1;
+
 void loadUserConf()
 {	
 	std::ifstream conf_file("conf.txt");
@@ -76,7 +91,9 @@ void simulateAnts()
 	for(int i = 0; i<SIMULATION_ITERATIONS; i++)
 	{
 		World world(Conf::WORLD_WIDTH, Conf::WORLD_HEIGHT);
-		Colony colony(Conf::COLONY_POSITION.x, Conf::COLONY_POSITION.y, Conf::ANTS_COUNT, malicious_fraction, malicious_timer_wait);
+		Colony colony(Conf::COLONY_POSITION.x, Conf::COLONY_POSITION.y, Conf::ANTS_COUNT, 
+		malicious_fraction, malicious_timer_wait, malicious_ants_focus, ant_tracing_pattern, 
+		counter_pheromone, hell_phermn_intensity_multiplier);
 		initWorld(world, colony);	
 		
 		for(int j = 0; j<SIMULATION_STEPS; j++)
@@ -94,7 +111,9 @@ void simulateAnts()
 void displaySimulation()
 {
 	World world(Conf::WORLD_WIDTH, Conf::WORLD_HEIGHT);
-	Colony colony(Conf::COLONY_POSITION.x, Conf::COLONY_POSITION.y, Conf::ANTS_COUNT, malicious_fraction, malicious_timer_wait);
+	Colony colony(Conf::COLONY_POSITION.x, Conf::COLONY_POSITION.y, Conf::ANTS_COUNT, 
+	malicious_fraction, malicious_timer_wait, malicious_ants_focus, ant_tracing_pattern, 
+	counter_pheromone, hell_phermn_intensity_multiplier);
 
 	sf::ContextSettings settings;
 	settings.antialiasingLevel = 4;
@@ -137,16 +156,13 @@ void displaySimulation()
 		display_manager.draw();
 
 		window.display();
-		if(colony.timer_count2>SIMULATION_STEPS) break;
+		// if(colony.timer_count2>SIMULATION_STEPS) break;
 	}
 }
 
 int main()
 {
 	Conf::loadTextures();
-  /****************************************************************************************
-   ************************ CHANGE THIS FRACTION OF MALICIOUS ANTS ************************
-   ****************************************************************************************/
 	
 	loadUserConf();
 	if(DISPLAY_GUI)

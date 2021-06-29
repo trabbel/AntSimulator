@@ -9,7 +9,22 @@
 
 struct Colony
 {
-	Colony(float x, float y, uint32_t n, float mal_prob, int mal_timer_delay)
+  /**
+   * @brief Construct a new Colony object
+   * 
+   * @param x Colony X position
+   * @param y Colony Y position
+   * @param n Colony Number of ants
+   * @param mal_prob Probability of an ant being malicious (fraction of ants being malicious)
+   * @param mal_timer_delay Delay after which the attack is launched
+   * @param malicious_ants_focus  Should the attack be focused towards food
+   * @param ant_tracing_pattern   Should malicious ants trace food pheromone or roam randomly
+	 * @param counter_pheromone Will the ants secret counter pheromone?
+	 * @param hell_phermn_intensity_multiplier multiplier for the intensity of TO_HELL pheromone
+   */
+	Colony(float x, float y, uint32_t n, float mal_prob, int mal_timer_delay, bool malicious_ants_focus = true, 
+          AntTracingPattern ant_tracing_pattern = AntTracingPattern::RANDOM, bool counter_pheromone = false,
+          float hell_phermn_intensity_multiplier = 1.0)
 		: position(x, y)
 		, last_direction_update(0.0f)
 		, ants_va(sf::Quads, 4 * n)
@@ -23,7 +38,7 @@ struct Colony
     for (uint64_t i(0); i < n; ++i) {
       if(std::abs(((double) rand() / (RAND_MAX))) > mal_prob)
       {
-        ants.emplace_back(x, y, getRandRange(2.0f * PI));
+        ants.emplace_back(x, y, getRandRange(2.0f * PI), counter_pheromone);
 
         const uint64_t index = 4 * i;
         ants_va[index + 0].color = Conf::ANT_COLOR;
@@ -39,8 +54,13 @@ struct Colony
       else
       {
           // STARTING ANGLE OF MALICIOUS ANT
-          // ants.emplace_back(x, y, getRandRange(2.0f * PI), true); // Sets even distribution
-          ants.emplace_back(x, y, 0, true);
+          float angle;
+          if(malicious_ants_focus)
+            angle = -3*PI/4;
+          else
+            angle = getRandRange(2.0f * PI); // Sets even distribution
+
+          ants.emplace_back(x, y, angle, false, true, ant_tracing_pattern, hell_phermn_intensity_multiplier); 
 
           const uint64_t index = 4 * i;
           ants_va[index + 0].color = Conf::MALICIOUS_ANT_COLOR;

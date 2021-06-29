@@ -9,3 +9,9 @@ enum class Mode : uint32_t
 	ToHell = 2,
 	CounterPhr = 3,
 };
+
+enum AntTracingPattern
+{
+	RANDOM,
+	FOOD
+};
