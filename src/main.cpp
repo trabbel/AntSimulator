@@ -15,6 +15,9 @@
 ************************ CHANGE THESE PARAMETERS FOR TRIALS ************************
 ****************************************************************************************/
 /*
+* @param DISPLAY_GUI:: Do you want GUI? If set to true, you can see the simulation
+* @param SIMULATION_STEPS:: Number of steps of simulation (Will not be in effect for GUI)
+* @param SIMULATION_ITERATIONS:: Run the same configured iteration these number of times
 * @param malicious_fraction:: Probability of an ant being malicious (fraction of ants being malicious)
 * @param malicious_timer_wait:: Delay after which the attack is launched
 * @param malicious_ants_focus::  Should the attack be focused towards food
@@ -88,6 +91,9 @@ void simulateAnts()
 	const static float dt = 0.016f;
 	std::ofstream myfile;
 	myfile.open ("../AntSimData.csv");
+	/**
+	 * @brief This loop will start a new colony and run the sim for SIMULATION_STEPS number of steps
+	 */
 	for(int i = 0; i<SIMULATION_ITERATIONS; i++)
 	{
 		World world(Conf::WORLD_WIDTH, Conf::WORLD_HEIGHT);
