@@ -28,7 +28,7 @@
 const bool DISPLAY_GUI = true;
 const int SIMULATION_STEPS = 10000;		// Only used in the data recording, NOT IN GUI
 const int SIMULATION_ITERATIONS = 5;
-float malicious_fraction = 0.05;
+float malicious_fraction = 0.0;
 int malicious_timer_wait = 100;	
 bool malicious_ants_focus = false;
 AntTracingPattern ant_tracing_pattern = AntTracingPattern::FOOD;
@@ -44,8 +44,8 @@ void loadUserConf()
 		conf_file >> Conf::ANTS_COUNT;
 	}
 	else {
-		malicious_fraction = 0.25;
-		malicious_timer_wait = 100;
+		// malicious_fraction = 0.25;
+		// malicious_timer_wait = 100;
 		std::cout << "Couldn't find 'conf.txt', loading default" << std::endl;
 	}
 }
