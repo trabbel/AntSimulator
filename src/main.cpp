@@ -6,8 +6,10 @@
 #include "config.hpp"
 #include "display_manager.hpp"
 
+#include <cstdio>		// for printf()		
 #include <stdio.h>      // for sprintf()
-
+#include <cstdlib>		// for parsing string to int
+#include <string.h>		// for strcmp
 #include <iostream>     // for console output
 #include <string>       // for std::string
 
@@ -25,17 +27,37 @@
 * @param counter_pheromone:: Will the ants secret counter pheromone?
 * @param hell_phermn_intensity_multiplier:: multiplier for the intensity of TO_HELL pheromone
 */
-const bool DISPLAY_GUI = true;
+
+/*
+	usage:
+		./AntSimulator <steps> <iterations> <mal_fraction> <mal_timer> <mal_focus> <tracing_pattern> <counter_pheromone> <fake_intensity>
+		<> means required arguments
+		for boolean variables, T is for true. Other key is for false
+		for tracing_pattern, R is for random. Other key is for food.
+
+	Example:
+		./AntSimulator 10000 3 0.05 100 F F F 1
+		This will run 3 experiments for 10000 timesteps each where the experiment is as followed:
+			- there are 5% of malicious ants within the colony
+			- it will launch the attack at timestep 100
+			- the malicious ants will not attack towards the food
+			- the malicious ants will follow food pheromone.
+			- the counter pheromone will not released.
+			- the fake pheromone will be 1 times stronger than usual (aka. normal)
+
+*/
+const bool DISPLAY_GUI = false;
+/*const bool DISPLAY_GUI = false;
 const int SIMULATION_STEPS = 10000;		// Only used in the data recording, NOT IN GUI
 const int SIMULATION_ITERATIONS = 5;
 float malicious_fraction = 0.05;
 int malicious_timer_wait = 100;	
-bool malicious_ants_focus = false;
-AntTracingPattern ant_tracing_pattern = AntTracingPattern::FOOD;
+bool malicious_ants_focus = false; //directional or uniform random
+AntTracingPattern ant_tracing_pattern = AntTracingPattern::FOOD; //FOOD, RANDOM, 
 bool counter_pheromone = true;
-float hell_phermn_intensity_multiplier = 1;
-
-void loadUserConf()
+float hell_phermn_intensity_multiplier = 1; //fake food pheromone strength
+*/
+/*void loadUserConf() //this function is not being used as we are parse parameters from terminal
 {	
 	std::ifstream conf_file("conf.txt");
 	if (conf_file) {
@@ -44,12 +66,12 @@ void loadUserConf()
 		conf_file >> Conf::ANTS_COUNT;
 	}
 	else {
-		malicious_fraction = 0.25;
-		malicious_timer_wait = 100;
+		//malicious_fraction = 0.25;
+		//malicious_timer_wait = 100;
 		std::cout << "Couldn't find 'conf.txt', loading default" << std::endl;
 	}
 }
-
+*/
 void initWorld(World& world, Colony& colony)
 {
 	for (uint32_t i(0); i < 64; ++i) {
@@ -86,11 +108,15 @@ void updateColony(World& world, Colony& colony)
 	world.update(dt);
 }
 
-void simulateAnts()
+void simulateAnts(int SIMULATION_ITERATIONS, int SIMULATION_STEPS, float malicious_fraction, int malicious_timer_wait, bool malicious_ants_focus, AntTracingPattern ant_tracing_pattern, 
+		bool counter_pheromone, float hell_phermn_intensity_multiplier)
 {
 	const static float dt = 0.016f;
 	std::ofstream myfile;
 	myfile.open ("../AntSimData.csv");
+	//x axis -> ratio of malicious ants/all ants
+	//y axis -> ratio of intensity of fake/everything
+	//z axis -> metric (ratio of ant coming back with food) 
 	/**
 	 * @brief This loop will start a new colony and run the sim for SIMULATION_STEPS number of steps
 	 */
@@ -107,14 +133,15 @@ void simulateAnts()
 			updateColony(world, colony);
 
 			if(colony.timer_count2%10 == 0)
-				myfile  << colony.confused_count<< ",";
+				myfile  << colony.confused_count<< ","; //change it into ant coming to the nest with food
 		}
 		myfile  << std::endl;
 	}
 	myfile.close();
 }
 
-void displaySimulation()
+void displaySimulation(int SIMULATION_ITERATIONS, int SIMULATION_STEPS, float malicious_fraction, int malicious_timer_wait, bool malicious_ants_focus, AntTracingPattern ant_tracing_pattern, 
+		bool counter_pheromone, float hell_phermn_intensity_multiplier)
 {
 	World world(Conf::WORLD_WIDTH, Conf::WORLD_HEIGHT);
 	Colony colony(Conf::COLONY_POSITION.x, Conf::COLONY_POSITION.y, Conf::ANTS_COUNT, 
@@ -166,15 +193,42 @@ void displaySimulation()
 	}
 }
 
-int main()
+int main(int argc,char* argv[])
 {
 	Conf::loadTextures();
 	
-	loadUserConf();
+	//loadUserConf(); //this function is not used.
+	if(argc <= 9){
+		//insufficient arguments -> not run
+		std::cout << "Insufficient arguments. Program terminated." << std::endl;
+		printf("usage:\n\t./AntSimulator <steps> <iterations> <mal_fraction> <mal_timer> <mal_focus> <tracing_pattern> <counter_pheromone> <fake_intensity>\n\t\t<> means required arguments\n\t\tfor boolean variables, T is for true. Other key is for false\n\t\tfor tracing_pattern, R is for random. Other key is for food.\n\nExample:\n\t./AntSimulator 10000 3 0.05 100 F F F 1\n\t\tThis will run 3 experiments for 10000 timesteps each where the experiment is as followed:\n\t\t\t- there are 5%% of malicious ants within the colony\n\t\t\t- it will launch the attack at timestep 100\n\t\t\t- the malicious ants will not attack towards the food\n\t\t\t- the malicious ants will follow food pheromone.\n\t\t\t- the counter pheromone will not released.\n\t\t\t- the fake pheromone will be 1 times stronger than usual (aka. normal)\n");
+		return 2;
+	}
+		//set the arguments here.
+		int SIMULATION_STEPS = atoi(argv[1]);		// Only used in the data recording, NOT IN GUI
+		int SIMULATION_ITERATIONS = atoi(argv[2]);
+		float malicious_fraction = std::stof(argv[3]);
+		int malicious_timer_wait = atoi(argv[4]);
+		bool malicious_ants_focus = false;
+		if(strcmp(argv[5],("T"))==0){
+			malicious_ants_focus = true;
+		}
+		//bool malicious_ants_focus = false; //directional or uniform random
+		AntTracingPattern ant_tracing_pattern = AntTracingPattern::FOOD;
+		if(strcmp(argv[6],("R"))==0){
+			ant_tracing_pattern = AntTracingPattern::RANDOM;
+		}
+		bool counter_pheromone = false;
+		if(strcmp(argv[7],("T"))==0){
+			counter_pheromone = true;
+		}
+		float hell_phermn_intensity_multiplier = std::stof(argv[8]);; //fake food pheromone strength
 	if(DISPLAY_GUI)
-		displaySimulation();
+		displaySimulation(SIMULATION_ITERATIONS, SIMULATION_STEPS, malicious_fraction, malicious_timer_wait, malicious_ants_focus,ant_tracing_pattern, 
+		counter_pheromone, hell_phermn_intensity_multiplier);
 	else
-		simulateAnts();
+		simulateAnts(SIMULATION_ITERATIONS, SIMULATION_STEPS, malicious_fraction, malicious_timer_wait, malicious_ants_focus,ant_tracing_pattern, 
+		counter_pheromone, hell_phermn_intensity_multiplier);
 
 	// Free textures
 	Conf::freeTextures();

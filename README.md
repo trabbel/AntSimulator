@@ -51,3 +51,22 @@ Detailed explanation [here](https://preshing.com/20170511/how-to-build-a-cmake-b
 |**Right click**|Add food|
 |**Left click**|Move view|
 |**Wheel**|Zoom|
+
+# 	Headless mode usage
+	./AntSimulator <steps> <iterations> <mal_fraction> <mal_timer> <mal_focus> <tracing_pattern> <counter_pheromone> <fake_intensity> <display_GUI>
+<> means required arguments
+
+for boolean variables, T is for true. Other key is for false
+
+for tracing_pattern, R is for random. Other key is for food.
+
+#	Example
+	./AntSimulator 10000 3 0.05 100 F F F 1 F
+This will run 3 experiments in headless mode for 10000 timesteps each where the experiment is as followed:
+			
+    - there are 5% of malicious ants within the colony
+	- it will launch the attack at timestep 100
+	- the malicious ants will not attack towards the food
+	- the malicious ants will follow food pheromone.
+	- the counter pheromone will not released.
+	- the fake pheromone will be 1 times stronger than usual (aka. normal)
