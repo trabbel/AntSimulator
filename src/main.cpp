@@ -12,6 +12,7 @@
 #include <string.h>		// for strcmp
 #include <iostream>     // for console output
 #include <string>       // for std::string
+#include <iomanip>		// for 3 decimal precision
 
 /****************************************************************************************
 ************************ CHANGE THESE PARAMETERS FOR TRIALS ************************
@@ -46,7 +47,7 @@
 			- the fake pheromone will be 1 times stronger than usual (aka. normal)
 
 */
-const bool DISPLAY_GUI = false;
+bool DISPLAY_GUI = false;
 /*const bool DISPLAY_GUI = false;
 const int SIMULATION_STEPS = 10000;		// Only used in the data recording, NOT IN GUI
 const int SIMULATION_ITERATIONS = 5;
@@ -109,7 +110,7 @@ void updateColony(World& world, Colony& colony)
 }
 
 void simulateAnts(int SIMULATION_ITERATIONS, int SIMULATION_STEPS, float malicious_fraction, int malicious_timer_wait, bool malicious_ants_focus, AntTracingPattern ant_tracing_pattern, 
-		bool counter_pheromone, float hell_phermn_intensity_multiplier)
+		bool counter_pheromone, float hell_phermn_intensity_multiplier, int mode)
 {
 	const static float dt = 0.016f;
 	std::ofstream myfile;
@@ -127,13 +128,23 @@ void simulateAnts(int SIMULATION_ITERATIONS, int SIMULATION_STEPS, float malicio
 		malicious_fraction, malicious_timer_wait, malicious_ants_focus, ant_tracing_pattern, 
 		counter_pheromone, hell_phermn_intensity_multiplier);
 		initWorld(world, colony);	
-		
+		float ratio;
 		for(int j = 0; j<SIMULATION_STEPS; j++)
 		{
 			updateColony(world, colony);
-
-			if(colony.timer_count2%10 == 0)
-				myfile  << colony.confused_count<< ","; //change it into ant coming to the nest with food
+			
+			if(colony.timer_count2%10 == 0){
+				switch(mode){
+					case 0:
+						ratio = (float)colony.confused_count/(float)Conf::ANTS_COUNT;//change this for other metric
+						myfile  << std::fixed<< std::setprecision(3) << ratio << ",";
+						break;
+					case 1:
+						ratio = (float)colony.confused_count/(float)((1-malicious_fraction)*Conf::ANTS_COUNT);//change this for other metric
+						myfile  << std::fixed<< std::setprecision(3) << ratio << ",";
+						break;
+				}
+			}
 		}
 		myfile  << std::endl;
 	}
@@ -198,7 +209,7 @@ int main(int argc,char* argv[])
 	Conf::loadTextures();
 	
 	//loadUserConf(); //this function is not used.
-	if(argc <= 9){
+	if(argc < 10){
 		//insufficient arguments -> not run
 		std::cout << "Insufficient arguments. Program terminated." << std::endl;
 		printf("usage:\n\t./AntSimulator <steps> <iterations> <mal_fraction> <mal_timer> <mal_focus> <tracing_pattern> <counter_pheromone> <fake_intensity>\n\t\t<> means required arguments\n\t\tfor boolean variables, T is for true. Other key is for false\n\t\tfor tracing_pattern, R is for random. Other key is for food.\n\nExample:\n\t./AntSimulator 10000 3 0.05 100 F F F 1\n\t\tThis will run 3 experiments for 10000 timesteps each where the experiment is as followed:\n\t\t\t- there are 5%% of malicious ants within the colony\n\t\t\t- it will launch the attack at timestep 100\n\t\t\t- the malicious ants will not attack towards the food\n\t\t\t- the malicious ants will follow food pheromone.\n\t\t\t- the counter pheromone will not released.\n\t\t\t- the fake pheromone will be 1 times stronger than usual (aka. normal)\n");
@@ -223,12 +234,19 @@ int main(int argc,char* argv[])
 			counter_pheromone = true;
 		}
 		float hell_phermn_intensity_multiplier = std::stof(argv[8]);; //fake food pheromone strength
+		if(strcmp(argv[9],("T"))==0){
+			DISPLAY_GUI = true;
+		}
+		int mode = 0;
+		if(argc>10 && atoi(argv[10])==1){
+			mode = 1;
+		}
 	if(DISPLAY_GUI)
 		displaySimulation(SIMULATION_ITERATIONS, SIMULATION_STEPS, malicious_fraction, malicious_timer_wait, malicious_ants_focus,ant_tracing_pattern, 
 		counter_pheromone, hell_phermn_intensity_multiplier);
 	else
 		simulateAnts(SIMULATION_ITERATIONS, SIMULATION_STEPS, malicious_fraction, malicious_timer_wait, malicious_ants_focus,ant_tracing_pattern, 
-		counter_pheromone, hell_phermn_intensity_multiplier);
+		counter_pheromone, hell_phermn_intensity_multiplier,mode);
 
 	// Free textures
 	Conf::freeTextures();

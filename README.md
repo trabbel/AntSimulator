@@ -61,7 +61,7 @@ for boolean variables, T is for true. Other key is for false
 for tracing_pattern, R is for random. Other key is for food.
 
 #	Example
-	./AntSimulator 10000 3 0.05 100 F F F 1 F
+	./AntSimulator 10000 3 0.05 100 F F F 1 F 1
 This will run 3 experiments in headless mode for 10000 timesteps each where the experiment is as followed:
 			
     - there are 5% of malicious ants within the colony
@@ -70,3 +70,8 @@ This will run 3 experiments in headless mode for 10000 timesteps each where the 
 	- the malicious ants will follow food pheromone.
 	- the counter pheromone will not released.
 	- the fake pheromone will be 1 times stronger than usual (aka. normal)
+    - the .csv result will be # of ants got food and coming back/# of good ants 
+
+#   Current Metric
+
+The proportion of benevolent ants bringing the food back to the home divided by all ants (include malicious). If we want to have it divide by only all benevolant, please add `1` at the end of command.

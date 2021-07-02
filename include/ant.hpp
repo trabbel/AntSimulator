@@ -42,6 +42,7 @@ struct Ant
 		, ant_tracing_pattern(ant_tracing_pattern_arg)
 		, counter_pheromone(counter_pheromone_arg)
 		, hell_phermn_intensity_multiplier(hell_phermn_intensity_multiplier_arg)
+		, gohome_counter(0)
 	{
 	}
 
@@ -237,6 +238,9 @@ struct Ant
 		}
 		else 
 			trace = phase == Mode::ToFood ? Mode::ToHome : Mode::ToFood;
+		if(phase==Mode::ToHome){
+			gohome_counter++;
+		}
 		world.addMarker(position, trace, intensity);
 		// else
 		//   world.addMarker(position, Mode::ToFood, intensity);
@@ -294,4 +298,5 @@ struct Ant
 	AntTracingPattern ant_tracing_pattern;
 	bool counter_pheromone;
 	float hell_phermn_intensity_multiplier;
+	int gohome_counter;
 };
