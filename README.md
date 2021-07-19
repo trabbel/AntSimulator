@@ -63,7 +63,7 @@ for tracing_pattern, R is for random. Other key is for food.
 The mode argument is not a required argument. Default one will make .csv output have the ratio of good ants that got food and going back and all the ants. `1` will change the denominator into the number of good ants.
 
 #	Example
-	./AntSimulator 10000 3 0.05 100 F F F 1 F 1
+	./AntSimulator 10000 3 0.05 100 F F F 1 F 1 0
 This will run 3 experiments in headless mode for 10000 timesteps each where the experiment is as followed:
 			
     - there are 5% of malicious ants within the colony
@@ -76,4 +76,13 @@ This will run 3 experiments in headless mode for 10000 timesteps each where the 
 
 #   Current Metric
 
-The proportion of benevolent ants bringing the food back to the home divided by all ants (include malicious). If we want to have it divide by only all benevolant, please add `1` at the end of command.
+The proportion of benevolent ants bringing the food back to the home divided by all ants (include malicious). If we want to have it divide by only all benevolant, please add `1` at the end of command. `2` and `3` are similar to `0` and `1` in terms of the divisor but the denominator for `2` and `3` is cumulative food count. To sum up,
+
+   - `0` : # of benevolent ants bringing food back to home/# of all ants [Default]
+   - `1` : # of benevolent ants bringing food back to home/# of benevolent ants
+   - `2` : # of food at home/# of all ants (cumulative food count/# of all ants)
+   - `3` : # of food at home/# of benevolent ants (cumulative food count/# of benevolent ants)
+
+# Automatic Script for gathering experiment data
+
+There is a automatic script for running a set of experiments (like change in ratio of malicious ants as a linear increment function or such) in `data_gathering.py`. Inside you can edit the code to suit your work but the basic idea behind it is to use simple string manipulation and python subprocess to run the script. Ideally, bash script would work too but to export the result into numpy matrix (`.npy` file) for further plotting so python is required.
