@@ -85,13 +85,13 @@ struct Colony
 		for (Ant& ant : ants) {
 			ant.update(dt, world, wreak_havoc, timer_count2);
 		}
-    getfood_count = 0;
+    //getfood_count = 0;
 		for (Ant& ant : ants) {
 			ant.checkColony(position);
       if(ant.phase == Mode::ToHome &&!(ant.is_malicious)){
           confused_count++;
       }
-      if(ant.phase == Mode::ToFood && ant.last_phase == Mode::ToHome &&!(ant.is_malicious)){
+      if(ant.last_phase == Mode::ToHome &&!(ant.is_malicious)){
           getfood_count+= ant.gohome_counter;
       }
 		}

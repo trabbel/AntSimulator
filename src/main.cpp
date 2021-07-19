@@ -115,6 +115,8 @@ void simulateAnts(int SIMULATION_ITERATIONS, int SIMULATION_STEPS, float malicio
 	const static float dt = 0.016f;
 	std::ofstream myfile;
 	myfile.open ("../AntSimData.csv");
+	const float a = (1-malicious_fraction)*Conf::ANTS_COUNT;
+	const float b = Conf::ANTS_COUNT;
 	//x axis -> ratio of malicious ants/all ants
 	//y axis -> ratio of intensity of fake/everything
 	//z axis -> metric (ratio of ant coming back with food) 
@@ -136,20 +138,20 @@ void simulateAnts(int SIMULATION_ITERATIONS, int SIMULATION_STEPS, float malicio
 			if(colony.timer_count2%10 == 0){
 				switch(mode){
 					case 0:
-						ratio = (float)colony.confused_count/(float)Conf::ANTS_COUNT;//change this for other metric
-						myfile  << std::fixed<< std::setprecision(3) << ratio << ",";
+						ratio = (float)colony.confused_count/b;//change this for other metric
+						myfile  << std::fixed<< std::setprecision(5) << ratio << ",";
 						break;
 					case 1:
-						ratio = (float)colony.confused_count/(float)((1-malicious_fraction)*Conf::ANTS_COUNT);//change this for other metric
-						myfile  << std::fixed<< std::setprecision(3) << ratio << ",";
+						ratio = (float)colony.confused_count/a;//change this for other metric
+						myfile  << std::fixed<< std::setprecision(5) << ratio << ",";
 						break;
 					case 2:
-						ratio = (float)colony.getfood_count/(float)(Conf::ANTS_COUNT);//change this for other metric
-						myfile  << std::fixed<< std::setprecision(3) << ratio << ",";
+						ratio = (float)colony.getfood_count/b;//change this for other metric
+						myfile  << std::fixed<< std::setprecision(5) << ratio << ",";
 						break;
 					case 3:
-						ratio = (float)colony.getfood_count/(float)((1-malicious_fraction)*Conf::ANTS_COUNT);//change this for other metric
-						myfile  << std::fixed<< std::setprecision(3) << ratio << ",";
+						ratio = (float)colony.getfood_count/a;//change this for other metric
+						myfile  << std::fixed<< std::setprecision(5) << ratio << ",";
 						break;
 				}
 			}

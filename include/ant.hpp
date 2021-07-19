@@ -117,11 +117,12 @@ struct Ant
 
 	void checkColony(const sf::Vector2f colony_position)
 	{
+		gohome_counter = 0;
 		if (getLength(position - colony_position) < colony_size) {
 			if (phase == Mode::ToHome) {
 				phase = Mode::ToFood;
-				if(last_phase == Mode::ToFood){
-					gohome_counter++;
+				if(last_phase == Mode::ToFood &&!(is_malicious)){
+					gohome_counter=1;
 					last_phase = Mode::ToHome;
 				}
 				direction.addNow(PI);
