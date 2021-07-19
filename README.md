@@ -60,7 +60,7 @@ for boolean variables, T is for true. Other key is for false
 
 for tracing_pattern, R is for random. Other key is for food.
 
-The mode argument is not a required argument. Default one will make .csv output have the ratio of good ants that got food and going back and all the ants. `1` will change the denominator into the number of good ants.
+The mode argument is not a required argument. Default one will make .csv output have the ratio of good ants that got food and going back and all the ants. Please see **current metric** section for more detail.
 
 #	Example
 	./AntSimulator 10000 3 0.05 100 F F F 1 F 1 0
