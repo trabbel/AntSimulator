@@ -32,6 +32,7 @@ struct Colony
     , timer_count(0)
     , timer_count2(0)
     , confused_count(0)
+    , getfood_count(0)
 	{
     // std::cout<<std::abs(((double) rand() / (RAND_MAX)));
       // std::cout<<"Normal";
@@ -79,15 +80,19 @@ struct Colony
 	void update(const float dt, World& world)
 	{	
     confused_count = 0;
+    //getfood_count = 0;
     bool wreak_havoc = timer_count >= mal_timer_delay ? true : false;
 		for (Ant& ant : ants) {
 			ant.update(dt, world, wreak_havoc, timer_count2);
 		}
-
+    getfood_count = 0;
 		for (Ant& ant : ants) {
 			ant.checkColony(position);
       if(ant.phase == Mode::ToHome &&!(ant.is_malicious)){
           confused_count++;
+      }
+      if(ant.phase == Mode::ToFood && ant.last_phase == Mode::ToHome &&!(ant.is_malicious)){
+          getfood_count+= ant.gohome_counter;
       }
 		}
     if(wreak_havoc)
@@ -114,6 +119,11 @@ struct Colony
 		rs.texture = &(*Conf::ANT_TEXTURE);
 		target.draw(ants_va, rs);
 	}
+  
+  int cumulative_count(){
+    int x = 0;
+    return x;
+  }
 
 	const sf::Vector2f position;
 	std::vector<Ant> ants;
@@ -128,4 +138,5 @@ struct Colony
   int timer_count2;
   int confused_count;
   float counter_rise_fraction;
+  int getfood_count;
 };

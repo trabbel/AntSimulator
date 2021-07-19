@@ -143,6 +143,14 @@ void simulateAnts(int SIMULATION_ITERATIONS, int SIMULATION_STEPS, float malicio
 						ratio = (float)colony.confused_count/(float)((1-malicious_fraction)*Conf::ANTS_COUNT);//change this for other metric
 						myfile  << std::fixed<< std::setprecision(3) << ratio << ",";
 						break;
+					case 2:
+						ratio = (float)colony.getfood_count/(float)(Conf::ANTS_COUNT);//change this for other metric
+						myfile  << std::fixed<< std::setprecision(3) << ratio << ",";
+						break;
+					case 3:
+						ratio = (float)colony.getfood_count/(float)((1-malicious_fraction)*Conf::ANTS_COUNT);//change this for other metric
+						myfile  << std::fixed<< std::setprecision(3) << ratio << ",";
+						break;
 				}
 			}
 		}
@@ -152,7 +160,7 @@ void simulateAnts(int SIMULATION_ITERATIONS, int SIMULATION_STEPS, float malicio
 }
 
 void displaySimulation(int SIMULATION_ITERATIONS, int SIMULATION_STEPS, float malicious_fraction, int malicious_timer_wait, bool malicious_ants_focus, AntTracingPattern ant_tracing_pattern, 
-		bool counter_pheromone, float hell_phermn_intensity_multiplier)
+		bool counter_pheromone, float hell_phermn_intensity_multiplier, int mode)
 {
 	World world(Conf::WORLD_WIDTH, Conf::WORLD_HEIGHT);
 	Colony colony(Conf::COLONY_POSITION.x, Conf::COLONY_POSITION.y, Conf::ANTS_COUNT, 
@@ -200,6 +208,29 @@ void displaySimulation(int SIMULATION_ITERATIONS, int SIMULATION_STEPS, float ma
 		display_manager.draw();
 
 		window.display();
+		float ratio = 0.00;
+		if(colony.timer_count2%10 == 0){
+			switch(mode){
+					case 0:
+						ratio = (float)colony.confused_count/(float)Conf::ANTS_COUNT;//change this for other metric
+						printf("Metric: %.4f\n",ratio);
+						break;
+					case 1:
+						ratio = (float)colony.confused_count/(float)((1-malicious_fraction)*Conf::ANTS_COUNT);//change this for other metric
+						printf("Metric: %.4f\n",ratio);
+						break;
+					case 2:
+						ratio = (float)colony.getfood_count/(float)(Conf::ANTS_COUNT);//change this for other metric
+						printf("Metric: %.4f\n",ratio);
+						break;
+					case 3:
+						ratio = (float)colony.getfood_count/(float)((1-malicious_fraction)*Conf::ANTS_COUNT);//change this for other metric
+						printf("Metric: %.4f\n",ratio);
+						break;
+				}
+			
+			
+		}
 		// if(colony.timer_count2>SIMULATION_STEPS) break;
 	}
 }
@@ -212,7 +243,7 @@ int main(int argc,char* argv[])
 	if(argc < 10){
 		//insufficient arguments -> not run
 		std::cout << "Insufficient arguments. Program terminated." << std::endl;
-		printf("usage:\n\t./AntSimulator <steps> <iterations> <mal_fraction> <mal_timer> <mal_focus> <tracing_pattern> <counter_pheromone> <fake_intensity>\n\t\t<> means required arguments\n\t\tfor boolean variables, T is for true. Other key is for false\n\t\tfor tracing_pattern, R is for random. Other key is for food.\n\nExample:\n\t./AntSimulator 10000 3 0.05 100 F F F 1\n\t\tThis will run 3 experiments for 10000 timesteps each where the experiment is as followed:\n\t\t\t- there are 5%% of malicious ants within the colony\n\t\t\t- it will launch the attack at timestep 100\n\t\t\t- the malicious ants will not attack towards the food\n\t\t\t- the malicious ants will follow food pheromone.\n\t\t\t- the counter pheromone will not released.\n\t\t\t- the fake pheromone will be 1 times stronger than usual (aka. normal)\n");
+		printf("usage:\n\t./AntSimulator <steps> <iterations> <mal_fraction> <mal_timer> <mal_focus> <tracing_pattern> <counter_pheromone> <fake_intensity> <gui> [mode]\n\t\t<> means required arguments\n\t\tfor boolean variables, T is for true. Other key is for false\n\t\tfor tracing_pattern, R is for random. Other key is for food.\n\nExample:\n\t./AntSimulator 10000 3 0.05 100 F F F 1\n\t\tThis will run 3 experiments for 10000 timesteps each where the experiment is as followed:\n\t\t\t- there are 5%% of malicious ants within the colony\n\t\t\t- it will launch the attack at timestep 100\n\t\t\t- the malicious ants will not attack towards the food\n\t\t\t- the malicious ants will follow food pheromone.\n\t\t\t- the counter pheromone will not released.\n\t\t\t- the fake pheromone will be 1 times stronger than usual (aka. normal)\n");
 		return 2;
 	}
 		//set the arguments here.
@@ -238,12 +269,12 @@ int main(int argc,char* argv[])
 			DISPLAY_GUI = true;
 		}
 		int mode = 0;
-		if(argc>10 && atoi(argv[10])==1){
-			mode = 1;
+		if(argc>10){
+			mode = atoi(argv[10]);
 		}
 	if(DISPLAY_GUI)
 		displaySimulation(SIMULATION_ITERATIONS, SIMULATION_STEPS, malicious_fraction, malicious_timer_wait, malicious_ants_focus,ant_tracing_pattern, 
-		counter_pheromone, hell_phermn_intensity_multiplier);
+		counter_pheromone, hell_phermn_intensity_multiplier,mode);
 	else
 		simulateAnts(SIMULATION_ITERATIONS, SIMULATION_STEPS, malicious_fraction, malicious_timer_wait, malicious_ants_focus,ant_tracing_pattern, 
 		counter_pheromone, hell_phermn_intensity_multiplier,mode);

@@ -43,6 +43,7 @@ struct Ant
 		, counter_pheromone(counter_pheromone_arg)
 		, hell_phermn_intensity_multiplier(hell_phermn_intensity_multiplier_arg)
 		, gohome_counter(0)
+		, last_phase(Mode::ToFood)
 	{
 	}
 
@@ -51,9 +52,13 @@ struct Ant
 		updatePosition(world, dt);
 		if(is_malicious && wreak_havoc)
 		phase = Mode::ToHell;
-
+		
 		if (phase == Mode::ToFood) {
 			checkFood(world, timestep);
+			/*if(last_phase == Mode::ToHome){
+				gohome_counter++;
+				last_phase == Mode::ToFood;
+			}*/
 		}
 
 		last_direction_update += dt;
@@ -100,6 +105,7 @@ struct Ant
 	{
 		if (world.markers.isOnFood(position)) {
 			phase = Mode::ToHome;
+			last_phase = Mode::ToFood;
 			direction.addNow(PI);
 			world.markers.pickFood(position);
 			markers_count = 0.0f;
@@ -114,6 +120,10 @@ struct Ant
 		if (getLength(position - colony_position) < colony_size) {
 			if (phase == Mode::ToHome) {
 				phase = Mode::ToFood;
+				if(last_phase == Mode::ToFood){
+					gohome_counter++;
+					last_phase = Mode::ToHome;
+				}
 				direction.addNow(PI);
 			}
 			markers_count = 0.0f;
@@ -238,9 +248,6 @@ struct Ant
 		}
 		else 
 			trace = phase == Mode::ToFood ? Mode::ToHome : Mode::ToFood;
-		if(phase==Mode::ToHome){
-			gohome_counter++;
-		}
 		world.addMarker(position, trace, intensity);
 		// else
 		//   world.addMarker(position, Mode::ToFood, intensity);
@@ -281,6 +288,7 @@ struct Ant
 	const float colony_size = 20.0f;
 
 	Mode phase;
+	Mode last_phase;
 	sf::Vector2f position;
 	Direction direction;
 	uint32_t hits;
