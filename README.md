@@ -88,8 +88,8 @@ The proportion of benevolent ants bringing the food back to the home divided by 
 There is a automatic script for running a set of experiments (like change in ratio of malicious ants as a linear increment function or such) in `data_gathering.py`. Inside you can edit the code to suit your work but the basic idea behind it is to use simple string manipulation and python subprocess to run the script. Ideally, bash script would work too but to export the result into numpy matrix (`.npy` file) for further plotting so python is required.
 
 # Known Issue
-   - The automatic script does not work. The cause might be as follow (not all but these are possibilities) [19 July 2021]
-   	- Subprocess does not know when the program end (but it is quite unlikely)
-   	- Instance runing under Python does not have permission to read/write the file as python already hold the file with Pandas
-   	- The file need to be reupdate with new python process
-   	- other reason that I don't know
+   - [ ] The automatic script does not work. The cause might be as follow (not all but these are possibilities) [19 July 2021]
+   	- [ ] Subprocess does not know when the program end (but it is quite unlikely)
+   	- [ ] Instance runing under Python does not have permission to read/write the file as python already hold the file with Pandas
+   	- [ ] The file need to be reupdate with new python process
+   	- [ ] other reason that I don't know
