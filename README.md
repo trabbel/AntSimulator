@@ -91,7 +91,7 @@ There is a automatic script for running a set of experiments (like change in rat
 # Known Issue
    - [X] Cumulative metric is not strictly increasing. [19 July 2021]
    - [ ] The automatic script does not work. [19 July 2021]
-   		- [X] A quick fix for now: add dump function to print out the csv file and redirect `stdout` to a new buffer file for python to read. It is inefficient but it works as a quick fix for now. To use that feature (or test), please change dump argument to 1.
+   		- [X] A quick fix for now: add `dump` function to print out the csv file and redirect `stdout` to a new buffer file for python to read. It is inefficient but it works as a quick fix for now. To use that feature (or test), please change `dump` argument to `1`. [26 July 2021]
 
    
 
