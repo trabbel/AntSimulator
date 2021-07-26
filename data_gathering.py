@@ -11,11 +11,11 @@ Change this script so that you can run the experiment as you intended.
 import subprocess
 import pandas as pd
 import numpy as np
-import time
+#import time
 
 #change these initial condition
 timestep = 10000
-iteration = 1
+iteration = 30
 mal_fraction = 0.5
 mal_timer = 100
 mal_focus = "F"
@@ -40,13 +40,16 @@ for i in range(10):
         #with this format, we can, ideally, get n csv files (where n is number of experiments required to be done by another variable) and merge it again.
         f.close()
         data = pd.read_csv('AntSimData4.csv', header=None).T #this will transpose the dataframe
+        #create average column
+        data['mean'] = data.mean(axis=1)
         #sample the data at t = timestep/2 (note that bin size is 10).
-        matrix[i][j] = data.loc[int(timestep/20),0]
-        print(str(data.loc[int(timestep/20),0])+'\n')
+        matrix[i][j] = data.loc[int(timestep/20),'mean']
+        #print(str(data.loc[int(timestep/20),'mean'])+'\n')
         #update the value
         mal_fraction = mal_fraction/2
         del data
         
     #update the value
     fake_intensity = fake_intensity + 0.2
+matrix = np.fliplr(matrix)
 np.save('./data.npy', matrix)
