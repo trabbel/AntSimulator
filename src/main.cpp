@@ -160,7 +160,10 @@ void simulateAnts(int SIMULATION_ITERATIONS, int SIMULATION_STEPS, float malicio
 	}
 	myfile.close();
 }
-
+void dump(){ //just in case.
+	std::ifstream file("../AntSimData.csv") ;
+    std::cout << file.rdbuf() ;
+}
 void displaySimulation(int SIMULATION_ITERATIONS, int SIMULATION_STEPS, float malicious_fraction, int malicious_timer_wait, bool malicious_ants_focus, AntTracingPattern ant_tracing_pattern, 
 		bool counter_pheromone, float hell_phermn_intensity_multiplier, int mode)
 {
@@ -274,12 +277,17 @@ int main(int argc,char* argv[])
 		if(argc>10){
 			mode = atoi(argv[10]);
 		}
+		int Isdump = 0;
+		if(argc>11){
+			Isdump = atoi(argv[11]);
+		}
 	if(DISPLAY_GUI)
 		displaySimulation(SIMULATION_ITERATIONS, SIMULATION_STEPS, malicious_fraction, malicious_timer_wait, malicious_ants_focus,ant_tracing_pattern, 
 		counter_pheromone, hell_phermn_intensity_multiplier,mode);
 	else
 		simulateAnts(SIMULATION_ITERATIONS, SIMULATION_STEPS, malicious_fraction, malicious_timer_wait, malicious_ants_focus,ant_tracing_pattern, 
 		counter_pheromone, hell_phermn_intensity_multiplier,mode);
+		if(Isdump == 1) dump();
 
 	// Free textures
 	Conf::freeTextures();
