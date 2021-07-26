@@ -53,7 +53,7 @@ Detailed explanation [here](https://preshing.com/20170511/how-to-build-a-cmake-b
 |**Wheel**|Zoom|
 
 # 	Headless mode usage
-	./AntSimulator <steps> <iterations> <mal_fraction> <mal_timer> <mal_focus> <tracing_pattern> <counter_pheromone> <fake_intensity> <display_GUI> [mode]
+	./AntSimulator <steps> <iterations> <mal_fraction> <mal_timer> <mal_focus> <tracing_pattern> <counter_pheromone> <fake_intensity> <display_GUI> [mode] [dump]
 <> means required arguments
 
 for boolean variables, T is for true. Other key is for false
@@ -63,7 +63,7 @@ for tracing_pattern, R is for random. Other key is for food.
 The mode argument is not a required argument. Default one will make .csv output have the ratio of good ants that got food and going back and all the ants. Please see **current metric** section for more detail.
 
 #	Example
-	./AntSimulator 10000 3 0.05 100 F F F 1 F 1 0
+	./AntSimulator 10000 3 0.05 100 F F F 1 F 1 0 0
 This will run 3 experiments in headless mode for 10000 timesteps each where the experiment is as followed:
 			
     - there are 5% of malicious ants within the colony
@@ -73,6 +73,7 @@ This will run 3 experiments in headless mode for 10000 timesteps each where the 
 	- the counter pheromone will not released.
 	- the fake pheromone will be 1 times stronger than usual (aka. normal)
     - the .csv result will be # of ants got food and coming back/# of good ants 
+    - the result will NOT print out to the stdout.
 
 #   Current Metric
 
@@ -90,7 +91,7 @@ There is a automatic script for running a set of experiments (like change in rat
 # Known Issue
    - [X] Cumulative metric is not strictly increasing. [19 July 2021]
    - [ ] The automatic script does not work. [19 July 2021]
-   		- [ ] Solution: Might want to use bash script instead of python script and export it as `.csv` file. 
+   		- [X] A quick fix for now: add `dump` function to print out the csv file and redirect `stdout` to a new buffer file for python to read. It is inefficient but it works as a quick fix for now. To use that feature (or test), please change `dump` argument to `1`. [26 July 2021]
 
    
 
