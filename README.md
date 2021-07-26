@@ -86,3 +86,11 @@ The proportion of benevolent ants bringing the food back to the home divided by 
 # Automatic Script for gathering experiment data
 
 There is a automatic script for running a set of experiments (like change in ratio of malicious ants as a linear increment function or such) in `data_gathering.py`. Inside you can edit the code to suit your work but the basic idea behind it is to use simple string manipulation and python subprocess to run the script. Ideally, bash script would work too but to export the result into numpy matrix (`.npy` file) for further plotting so python is required.
+
+# Known Issue
+   - [X] Cumulative metric is not strictly increasing. [19 July 2021]
+   - [ ] The automatic script does not work. [19 July 2021]
+   		- [ ] Solution: Might want to use bash script instead of python script and export it as `.csv` file. 
+
+   
+
