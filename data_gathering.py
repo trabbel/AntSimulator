@@ -14,7 +14,7 @@ import numpy as np
 #import time
 
 #change these initial condition
-keep_result = True
+save_experiment = False
 timestep = 10000
 iteration = 100
 mal_fraction = 0.5
@@ -34,8 +34,8 @@ for i in range(11):
     mal_fraction = 0.5
     for j in range(11):
         print("subexperiment " + str(j)+"/10")
-        if keep_result:
-            name = "Exp"+str(i)+"_"+str(j)+".csv"
+        if(save_experiment):
+            name = "exp"+str(i+1)+"_"+str(j+1)+".csv"
         else:
             name = "AntSimDataBuf.csv"
         f = open(name,"w")
