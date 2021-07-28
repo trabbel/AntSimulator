@@ -11,6 +11,7 @@ Change this script so that you can run the experiment as you intended.
 import subprocess
 import pandas as pd
 import numpy as np
+from tqdm import tqdm
 #import time
 
 #change these initial condition
@@ -32,8 +33,8 @@ for i in range(11):
     print("experiment "+str(i)+"/10\n")
     #set initialized param
     mal_fraction = 0.5
-    for j in range(11):
-        print("subexperiment " + str(j)+"/10")
+    for j in tqdm(range(11), desc="Subexperiment"):
+        #print("subexperiment " + str(j)+"/10")
         if(save_experiment):
             name = "./experiment/exp"+str(i+1)+"_"+str(j+1)+".csv"
         else:
