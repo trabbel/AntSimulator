@@ -35,9 +35,9 @@ for i in range(11):
     for j in range(11):
         print("subexperiment " + str(j)+"/10")
         if(save_experiment):
-            name = "exp"+str(i+1)+"_"+str(j+1)+".csv"
+            name = "./experiment/exp"+str(i+1)+"_"+str(j+1)+".csv"
         else:
-            name = "AntSimDataBuf.csv"
+            name = "./experiment/AntSimDataBuf.csv"
         f = open(name,"w")
         subprocess.run(['./build/AntSimulator', str(timestep), str(iteration), str(mal_fraction), str(mal_timer), str(mal_focus), str(tracing_pattern), str(counter_pheromone), str(fake_intensity), str(display_GUI), str(metric_mode),str(1)], stdout = f)
         #this subprocess will yield one csv file
