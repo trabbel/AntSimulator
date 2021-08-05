@@ -16,9 +16,11 @@ struct WorldCell
 	uint32_t food;
 	uint32_t wall;
 
+	inline static float hell_phermn_evpr_multi;
+	
 	WorldCell()
-		: intensity{ 0.0f, 0.0f }
-		, permanent{ false, false }
+		: intensity{ 0.0f, 0.0f , 0.0f, 0.0f }
+		, permanent{ false, false, false, false }
 		, food(0)
 		, wall(0)
 	{}
@@ -28,7 +30,7 @@ struct WorldCell
 		// Update intensities
 		intensity[0] -= (!permanent[0]) * dt;
 		intensity[1] -= (!permanent[1]) * dt;
-		intensity[2] -= (!permanent[2]) * dt;
+		intensity[2] -= (!permanent[2]) * dt * hell_phermn_evpr_multi;
 		intensity[3] -= (!permanent[3]) * dt;
 		// Avoid negative values
 		intensity[0] = std::max(0.0f, intensity[0]);
@@ -38,6 +40,11 @@ struct WorldCell
 		// Remove food marker if no food
 		intensity[1] = intensity[1] * to<float>(!bool(!food && permanent[1]));
 		permanent[1] &= to<bool>(food);
+	}
+
+	static void setHellPhermnEvprMulti(float multiplier)
+	{
+		WorldCell::hell_phermn_evpr_multi = multiplier;
 	}
 
 	void pick()

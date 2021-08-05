@@ -34,6 +34,7 @@ bool malicious_ants_focus = false;
 AntTracingPattern ant_tracing_pattern = AntTracingPattern::FOOD;
 bool counter_pheromone = true;
 float hell_phermn_intensity_multiplier = 1;
+float hell_phermn_evpr_multi = 1.0;
 
 void loadUserConf()
 {	
@@ -73,6 +74,7 @@ void initWorld(World& world, Colony& colony)
 		}
 	}
 
+	WorldCell::setHellPhermnEvprMulti(hell_phermn_evpr_multi);
 }
 
 void updateColony(World& world, Colony& colony)
