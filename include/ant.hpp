@@ -233,7 +233,8 @@ struct Ant
 		if(phase == Mode::ToHell)
 		{
 			trace = Mode::ToHell;
-			intensity *= hell_phermn_intensity_multiplier;
+			// intensity *= hell_phermn_intensity_multiplier;
+			intensity = 1000.0f * hell_phermn_intensity_multiplier;
 		}
 		else 
 			trace = phase == Mode::ToFood ? Mode::ToHome : Mode::ToFood;
