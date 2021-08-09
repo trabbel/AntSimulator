@@ -13,5 +13,6 @@ enum class Mode : uint32_t
 enum AntTracingPattern
 {
 	RANDOM,
-	FOOD
+	FOOD,
+	HOME
 };

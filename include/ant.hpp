@@ -162,10 +162,15 @@ struct Ant
 					value_1 = 0;
 					value_2 = 0;
 				}
-				else
+				else if(ant_tracing_pattern == AntTracingPattern::FOOD)
 				{
 					value_1 = cell->intensity[static_cast<uint32_t>(Mode::ToFood)];
 					value_2 = cell->intensity[static_cast<uint32_t>(Mode::ToHell)];
+				}
+				else
+				{
+					value_1 = cell->intensity[static_cast<uint32_t>(Mode::ToHome)];
+					value_2 = 0;//cell->intensity[static_cast<uint32_t>(Mode::ToHell)];
 				}
 				value_1 = value_1 == 0 ? 1 : value_1/1000;
 				value_2 = value_2 == 0 ? 1 : value_2/1000;
