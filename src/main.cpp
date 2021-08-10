@@ -25,14 +25,14 @@
 * @param counter_pheromone:: Will the ants secret counter pheromone?
 * @param hell_phermn_intensity_multiplier:: multiplier for the intensity of TO_HELL pheromone
 */
-const bool DISPLAY_GUI = true;
-const int SIMULATION_STEPS = 10000;		// Only used in the data recording, NOT IN GUI
-const int SIMULATION_ITERATIONS = 5;
-float malicious_fraction = 0.0;
+const bool DISPLAY_GUI = false;
+const int SIMULATION_STEPS = 100000;		// Only used in the data recording, NOT IN GUI
+const int SIMULATION_ITERATIONS = 10;
+float malicious_fraction = 0.10;
 int malicious_timer_wait = 100;	
-bool malicious_ants_focus = false;
+bool malicious_ants_focus = true;
 AntTracingPattern ant_tracing_pattern = AntTracingPattern::FOOD;
-bool counter_pheromone = true;
+bool counter_pheromone = false;
 float hell_phermn_intensity_multiplier = 1;
 float hell_phermn_evpr_multi = 1.0;
 
@@ -75,6 +75,8 @@ void initWorld(World& world, Colony& colony)
 	}
 
 	WorldCell::setHellPhermnEvprMulti(hell_phermn_evpr_multi);
+
+	Ant::resetFoodBitsTaken();
 }
 
 void updateColony(World& world, Colony& colony)
@@ -92,26 +94,42 @@ void simulateAnts()
 {
 	const static float dt = 0.016f;
 	std::ofstream myfile;
-	myfile.open ("../AntSimData.csv");
+	myfile.open ("../AntSimData_avgOf10.csv");
 	/**
 	 * @brief This loop will start a new colony and run the sim for SIMULATION_STEPS number of steps
 	 */
-	for(int i = 0; i<SIMULATION_ITERATIONS; i++)
+	int mal_max_power = 10;
+	int evaporation_max = 10;
+	int counter = 0;
+	float total_food_per_ant = 00.0;
+	for(int e = 0; e<=evaporation_max; e++)
 	{
-		World world(Conf::WORLD_WIDTH, Conf::WORLD_HEIGHT);
-		Colony colony(Conf::COLONY_POSITION.x, Conf::COLONY_POSITION.y, Conf::ANTS_COUNT, 
-		malicious_fraction, malicious_timer_wait, malicious_ants_focus, ant_tracing_pattern, 
-		counter_pheromone, hell_phermn_intensity_multiplier);
-		initWorld(world, colony);	
-		
-		for(int j = 0; j<SIMULATION_STEPS; j++)
+		for(int m = 1; m<=mal_max_power; m++)
 		{
-			updateColony(world, colony);
-
-			if(colony.timer_count2%10 == 0)
-				myfile  << colony.confused_count<< ",";
+			total_food_per_ant = 0.0;
+			for(int i = 0; i<SIMULATION_ITERATIONS; i++)
+			{
+				malicious_fraction = std::pow(2, -m);
+				hell_phermn_evpr_multi = 0.2*e;
+				World world(Conf::WORLD_WIDTH, Conf::WORLD_HEIGHT);
+				Colony colony(Conf::COLONY_POSITION.x, Conf::COLONY_POSITION.y, Conf::ANTS_COUNT, 
+				malicious_fraction, malicious_timer_wait, malicious_ants_focus, ant_tracing_pattern, 
+				counter_pheromone, hell_phermn_intensity_multiplier);
+				initWorld(world, colony);	
+				
+				for(int j = 0; j<SIMULATION_STEPS; j++)
+				{
+					updateColony(world, colony);
+				}
+				// if(colony.timer_count2%10 == 0)
+				total_food_per_ant += float(Ant::getFoodBitsTaken())/float(1024);
+			}
+			float avg_food_per_ant = total_food_per_ant/float(SIMULATION_ITERATIONS);
+			myfile  << (avg_food_per_ant)<< ",";
+			std::cout<<avg_food_per_ant<<" ";
 		}
 		myfile  << std::endl;
+		std::cout<<std::endl;
 	}
 	myfile.close();
 }
@@ -159,11 +177,11 @@ void displaySimulation()
 			updateColony(world, colony);
 		}
 
-		window.clear(sf::Color(94, 87, 87));
-		
-		display_manager.draw();
+				window.clear(sf::Color(94, 87, 87));
+				
+				display_manager.draw();
 
-		window.display();
+				window.display();
 		// if(colony.timer_count2>SIMULATION_STEPS) break;
 	}
 }

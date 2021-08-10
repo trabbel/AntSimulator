@@ -17,7 +17,7 @@ data = pd.read_csv("./AntSimData.csv", header=None).T
 #print ("Is list strictly increasing ? : " + str(res))
 
 data = np.array(data)
-plt.plot(data[0, :], data[1, :])
+plt.plot(data)
 plt.xlabel('iterations')
 plt.ylabel('cumulative food count/# of benevolent ants')
 plt.savefig("graph.png")

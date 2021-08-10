@@ -103,9 +103,20 @@ struct Ant
 			world.markers.pickFood(position);
 			markers_count = 0.0f;
 			dilusion_counter = 0;
+			food_bits_taken_counter++;
 			// if(!(is_malicious)) std::cout << "Found food at timestep=" << timestep <<"\n";
 			return;
 		}
+	}
+
+	static int getFoodBitsTaken()
+	{
+		return food_bits_taken_counter;
+	}
+
+	static void resetFoodBitsTaken()
+	{
+		food_bits_taken_counter = 0;
 	}
 
 	void checkColony(const sf::Vector2f colony_position)
@@ -239,6 +250,8 @@ struct Ant
 		{
 			trace = Mode::ToHell;
 			intensity *= hell_phermn_intensity_multiplier;
+			// intensity = 1000.0f * hell_phermn_intensity_multiplier;
+			// std::cout<<intensity<<"  ";
 		}
 		else 
 			trace = phase == Mode::ToFood ? Mode::ToHome : Mode::ToFood;
@@ -299,4 +312,5 @@ struct Ant
 	AntTracingPattern ant_tracing_pattern;
 	bool counter_pheromone;
 	float hell_phermn_intensity_multiplier;
+	inline static int food_bits_taken_counter;
 };
