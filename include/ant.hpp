@@ -45,14 +45,14 @@ struct Ant
 	{
 	}
 
-	void update(const float dt, World& world, bool wreak_havoc, int timestep)
+	void update(const float dt, World& world, bool wreak_havoc)
 	{
 		updatePosition(world, dt);
 		if(is_malicious && wreak_havoc)
 		phase = Mode::ToHell;
 
 		if (phase == Mode::ToFood) {
-			checkFood(world, timestep);
+			checkFood(world);
 		}
 
 		last_direction_update += dt;
@@ -95,7 +95,7 @@ struct Ant
 		}
 	}
 
-	void checkFood(World& world, int timestep)
+	void checkFood(World& world)
 	{
 		if (world.markers.isOnFood(position)) {
 			phase = Mode::ToHome;
@@ -104,7 +104,7 @@ struct Ant
 			markers_count = 0.0f;
 			dilusion_counter = 0;
 			food_bits_taken_counter++;
-			// if(!(is_malicious)) std::cout << "Found food at timestep=" << timestep <<"\n";
+			found_food = true;
 			return;
 		}
 	}
@@ -114,9 +114,15 @@ struct Ant
 		return food_bits_taken_counter;
 	}
 
-	static void resetFoodBitsTaken()
+	static int getFoodBitsDelivered()
+	{
+		return food_bits_delivered_counter;
+	}
+
+	static void resetFoodBitsCounters()
 	{
 		food_bits_taken_counter = 0;
+		food_bits_delivered_counter = 0;
 	}
 
 	void checkColony(const sf::Vector2f colony_position)
@@ -125,6 +131,8 @@ struct Ant
 			if (phase == Mode::ToHome) {
 				phase = Mode::ToFood;
 				direction.addNow(PI);
+				food_bits_delivered_counter++;
+				delivered_food_home = true;
 			}
 			markers_count = 0.0f;
 		}
@@ -284,6 +292,16 @@ struct Ant
 		va[index + 3].position = position - width * nrm_vec - length * dir_vec;
 	}
 
+	bool didAntFindFood()
+	{
+		return found_food;
+	}
+
+	bool didAntDeliverFood()
+	{
+		return delivered_food_home;
+	}
+
 	// Parameters
 	const float width = 3.0f;
 	const float length = 4.7f;
@@ -313,4 +331,7 @@ struct Ant
 	bool counter_pheromone;
 	float hell_phermn_intensity_multiplier;
 	inline static int food_bits_taken_counter;
+	inline static int food_bits_delivered_counter;
+	bool found_food = false;
+	bool delivered_food_home = false;
 };

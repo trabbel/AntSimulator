@@ -79,16 +79,19 @@ struct Colony
 	void update(const float dt, World& world)
 	{	
     confused_count = 0;
+    ants_that_found_food = 0; 
+    ants_that_delivered_food = 0;
     bool wreak_havoc = timer_count >= mal_timer_delay ? true : false;
 		for (Ant& ant : ants) {
-			ant.update(dt, world, wreak_havoc, timer_count2);
+			ant.update(dt, world, wreak_havoc);
 		}
 
 		for (Ant& ant : ants) {
 			ant.checkColony(position);
-      if(ant.phase == Mode::ToHome &&!(ant.is_malicious)){
-          confused_count++;
-      }
+      if(ant.didAntFindFood())
+        ants_that_found_food++;
+      if(ant.didAntDeliverFood())
+        ants_that_delivered_food++;
 		}
     if(wreak_havoc)
     {
@@ -98,6 +101,16 @@ struct Colony
       timer_count ++;
     timer_count2 ++;
 	}
+
+  static int getAntsThatFoundFood()
+  {
+    return ants_that_found_food;
+  }
+
+  static int getAntsThatDeliveredFood()
+  {
+    return ants_that_delivered_food;
+  }
 
 	void render(sf::RenderTarget& target, const sf::RenderStates& states) const
 	{
@@ -128,4 +141,7 @@ struct Colony
   int timer_count2;
   int confused_count;
   float counter_rise_fraction;
+
+  inline static int ants_that_found_food;
+  inline static int ants_that_delivered_food;
 };
