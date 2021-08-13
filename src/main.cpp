@@ -120,18 +120,18 @@ void simulateAnts()
 	/**
 	 * @brief This loop will start a new colony and run the sim for SIMULATION_STEPS number of steps
 	 */
-	int mal_max_power = 50;
+	int mal_max_power = 10;
 	int evaporation_max = 10;
 	int counter = 0;
 	float total_food_per_ant = 00.0;
 	std::string file_name_prefix = "../data/AntSimData";
-	std::vector<float> evaporation_set = {1, 100};
+	std::vector<float> evaporation_set = {0,0.5,1.0,2.0,5.0,10,50,100,500,1000};
 	int x = 0;
 	int datapoints_to_record = 100;
 	int skip_steps = SIMULATION_STEPS/datapoints_to_record;
 	for(int e = 0; e<evaporation_set.size(); e++)
 	{
-		for(int m = 50; m<=mal_max_power; m++)
+		for(int m = 1; m<=mal_max_power; m++)
 		{
 			total_food_per_ant = 0.0;
 			for(int i = 0; i<SIMULATION_ITERATIONS; i++)
