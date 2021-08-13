@@ -83,16 +83,15 @@ struct Colony
     ants_that_delivered_food = 0;
     bool wreak_havoc = timer_count >= mal_timer_delay ? true : false;
 		for (Ant& ant : ants) {
+      if(!skip_once)
+			  ant.checkColony(position);
 			ant.update(dt, world, wreak_havoc);
-		}
-
-		for (Ant& ant : ants) {
-			ant.checkColony(position);
       if(ant.didAntFindFood())
         ants_that_found_food++;
       if(ant.didAntDeliverFood())
         ants_that_delivered_food++;
 		}
+    skip_once = false;
     if(wreak_havoc)
     {
       timer_count = 0;
@@ -141,6 +140,7 @@ struct Colony
   int timer_count2;
   int confused_count;
   float counter_rise_fraction;
+  bool skip_once = true;
 
   inline static int ants_that_found_food;
   inline static int ants_that_delivered_food;

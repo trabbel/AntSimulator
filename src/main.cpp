@@ -10,6 +10,7 @@
 
 #include <iostream>     // for console output
 #include <string>       // for std::string
+#include <ctime>
 
 /****************************************************************************************
 ************************ CHANGE THESE PARAMETERS FOR TRIALS ************************
@@ -26,7 +27,7 @@
 * @param hell_phermn_intensity_multiplier:: multiplier for the intensity of TO_HELL pheromone
 */
 const bool DISPLAY_GUI = false;
-const int SIMULATION_STEPS = 500;		// Only used in the data recording, NOT IN GUI
+const int SIMULATION_STEPS = 50000;		// Only used in the data recording, NOT IN GUI
 const int SIMULATION_ITERATIONS = 1;
 float malicious_fraction = 0.10;
 int malicious_timer_wait = 100;	
@@ -39,19 +40,18 @@ float hell_phermn_evpr_multi = 1.0;
 std::string getExperimentSpecificName(int iteration)
 {
 std::string DISPLAY_GUI_string = "_DISPLAY_GUI-" + std::to_string(DISPLAY_GUI);
-std::string SIMULATION_STEPS_string = "_SIMULATION_STEPS-" + std::to_string(SIMULATION_STEPS);
-std::string SIMULATION_ITERATIONS_string = "_SIMULATION_ITERATIONS-" + std::to_string(SIMULATION_ITERATIONS);
-std::string malicious_fraction_string = "_malicious_fraction-" + std::to_string(malicious_fraction);
-std::string malicious_timer_wait_string = "_malicious_timer_wait-" + std::to_string(malicious_timer_wait);
-std::string malicious_ants_focus_string = "_malicious_ants_focus-" + std::to_string(malicious_ants_focus);
-std::string ant_tracing_pattern_string = "_ant_tracing_pattern-" + std::to_string(ant_tracing_pattern);
-std::string counter_pheromone_string = "_counter_pheromone-" + std::to_string(counter_pheromone);
-std::string hell_phermn_intensity_multiplier_string = "_hell_phermn_intensity_multiplier-" + std::to_string(hell_phermn_intensity_multiplier);
-std::string hell_phermn_evpr_multi_string = "_hell_phermn_evpr_multi-" + std::to_string(hell_phermn_evpr_multi);
-std::string iteration_string = "_iteration-" + std::to_string(iteration);
+std::string SIMULATION_STEPS_string = "_SIM_STEPS-" + std::to_string(SIMULATION_STEPS);
+std::string SIMULATION_ITERATIONS_string = "_SIM_ITERS-" + std::to_string(SIMULATION_ITERATIONS);
+std::string malicious_fraction_string = "_mal_frac-" + std::to_string(malicious_fraction);
+std::string malicious_timer_wait_string = "_mal_delay-" + std::to_string(malicious_timer_wait);
+std::string malicious_ants_focus_string = "_mal_ants_focus-" + std::to_string(malicious_ants_focus);
+std::string ant_tracing_pattern_string = "_ant_tracing-" + std::to_string(ant_tracing_pattern);
+std::string counter_pheromone_string = "_ctr_pherm-" + std::to_string(counter_pheromone);
+std::string hell_phermn_intensity_multiplier_string = "_hell_phermn_intens-" + std::to_string(hell_phermn_intensity_multiplier);
+std::string hell_phermn_evpr_multi_string = "_hell_phermn_evpr-" + std::to_string(hell_phermn_evpr_multi);
+std::string iteration_string = "_iter-" + std::to_string(iteration);
 
-return DISPLAY_GUI_string
-		+ SIMULATION_STEPS_string
+return SIMULATION_STEPS_string
 		+ SIMULATION_ITERATIONS_string
 		+ malicious_fraction_string
 		+ malicious_timer_wait_string
@@ -120,22 +120,25 @@ void simulateAnts()
 	/**
 	 * @brief This loop will start a new colony and run the sim for SIMULATION_STEPS number of steps
 	 */
-	int mal_max_power = 2;
+	int mal_max_power = 50;
 	int evaporation_max = 10;
 	int counter = 0;
 	float total_food_per_ant = 00.0;
-	std::string file_name_prefix = "../AntSimData";
-	std::vector<float> evaporation_set = {500, 1000};
-	for(int e = 0; e<=evaporation_set.size(); e++)
+	std::string file_name_prefix = "../data/AntSimData";
+	std::vector<float> evaporation_set = {1, 100};
+	int x = 0;
+	int datapoints_to_record = 100;
+	int skip_steps = SIMULATION_STEPS/datapoints_to_record;
+	for(int e = 0; e<evaporation_set.size(); e++)
 	{
-		for(int m = 1; m<=mal_max_power; m++)
+		for(int m = 50; m<=mal_max_power; m++)
 		{
 			total_food_per_ant = 0.0;
 			for(int i = 0; i<SIMULATION_ITERATIONS; i++)
 			{
 				malicious_fraction = std::pow(2, -m);
 				hell_phermn_evpr_multi = evaporation_set.at(e);
-				myfile.open(file_name_prefix+getExperimentSpecificName(i));
+				myfile.open(file_name_prefix+getExperimentSpecificName(i)+".csv");
 				// std::cout<<file_name_prefix+getExperimentSpecificName(i)<<std::endl;
 				float food_found_per_ant = 0.0;
 				float food_delivered_per_ant = 0.0;
@@ -151,7 +154,7 @@ void simulateAnts()
 				for(int j = 0; j<SIMULATION_STEPS; j++)
 				{
 					updateColony(world, colony);
-					if(j%10 == 0)
+					if(j%skip_steps == 0)
 					{
 						food_found_per_ant = float(Ant::getFoodBitsTaken())/float(1024); // Total  number of Ants 
 						food_delivered_per_ant = float(Ant::getFoodBitsDelivered())/float(1024); // Total  number of Ants 
@@ -160,13 +163,10 @@ void simulateAnts()
 						myfile  << (food_found_per_ant)<< "," << food_delivered_per_ant << "," 
 								<< fraction_of_ants_found_food << "," << fraction_of_ants_delivered_food<<std::endl;
 					}
-					// std::cout<<j<<" ";
 				}
 				myfile.close();
-				std::cout<<std::endl;
-				// std::cout<<"#########"<<i<<" ";
+				std::cout<<"Iteration "<<x++<<" Done"<<std::endl;
 			}
-			// std::cout<<std::endl<<"wowowowowowow";
 		}
 	}
 }
