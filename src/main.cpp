@@ -28,7 +28,7 @@
 */
 const bool DISPLAY_GUI = false;
 const int SIMULATION_STEPS = 50000;		// Only used in the data recording, NOT IN GUI
-const int SIMULATION_ITERATIONS = 1;
+const int SIMULATION_ITERATIONS = 10;
 float malicious_fraction = 0.10;
 int malicious_timer_wait = 100;	
 bool malicious_ants_focus = true;
@@ -121,15 +121,15 @@ void simulateAnts()
 	 * @brief This loop will start a new colony and run the sim for SIMULATION_STEPS number of steps
 	 */
 	int mal_max_power = 10;
-	int evaporation_max = 10;
+	int intensity_max_power = 10;
 	int counter = 0;
 	float total_food_per_ant = 00.0;
 	std::string file_name_prefix = "../data/AntSimData";
-	std::vector<float> evaporation_set = {0,0.5,1.0,2.0,5.0,10,50,100,500,1000};
+	// std::vector<float> evaporation_set = {0,0.5,1.0,2.0,5.0,10,50,100,500,1000};
 	int x = 0;
 	int datapoints_to_record = 100;
 	int skip_steps = SIMULATION_STEPS/datapoints_to_record;
-	for(int e = 0; e<evaporation_set.size(); e++)
+	for(int intens = 0; intens<=intensity_max_power; intens++)
 	{
 		for(int m = 1; m<=mal_max_power; m++)
 		{
@@ -137,7 +137,7 @@ void simulateAnts()
 			for(int i = 0; i<SIMULATION_ITERATIONS; i++)
 			{
 				malicious_fraction = std::pow(2, -m);
-				hell_phermn_evpr_multi = evaporation_set.at(e);
+				hell_phermn_intensity_multiplier = intens*0.2;
 				myfile.open(file_name_prefix+getExperimentSpecificName(i)+".csv");
 				// std::cout<<file_name_prefix+getExperimentSpecificName(i)<<std::endl;
 				float food_found_per_ant = 0.0;
