@@ -2,16 +2,45 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
-#load data and preprocess the data
-data = pd.read_csv("./AntSimData_avgOf10.csv", header=None)
-#data = np.fliplr(data)
-print(data.shape)
-#heatmap axis
+import glob
+
+path = r'./data' # use your path
+evapor_set = [0.0,0.5,1.0,2.0,5.0,10.0,50.0,100.0,500.0,1000.0]
+all_files = glob.glob(path + "/*_iter-0.csv")
+
+spec_data = np.zeros((10,10,4))
+
+for i, e in enumerate(evapor_set):
+    for m in range(1,11):
+        for file in all_files:
+            if ("mal_frac-"+str(("%.6f" % (2**-m)))) in file:
+                if ("evpr-"+str(e)) in file:
+                    # print(m)
+                    dt = np.array(pd.read_csv(file, header=None))
+                    spec_data[i,m-1] = dt[-1]
+                    break
+    
+
+# #heatmap axis
 x = [0,0.5,1.0,2.0,5.0,10,50,100,500,1000]
+# y = [str(n) for n in range(1,11)]
 y = ['2^-'+str(n) for n in range(1,11)]
-# y = np.flip(y)
-# x = np.flip(x)
-color = sns.color_palette("Blues", as_cmap=True)
-plot = sns.heatmap(data, annot=True,xticklabels = y, yticklabels = x, cmap=color)
-plot = plot.pivot("Relative Evaporation Multiplier", "Malicious Ants Fraction", "Food Bits per Ant")
-plot.figure.savefig("heatmap.png")
+color_blue = sns.color_palette("Blues", as_cmap=True)
+color_green = sns.color_palette("Greens", as_cmap=True)
+
+fig,axn = plt.subplots(2, 2, sharex=True, sharey=True)
+
+df=[]
+
+for i in range(spec_data.shape[-1]):
+    df.append(pd.DataFrame(spec_data[:,:,i]))
+
+for i,ax in enumerate(axn.flat):
+    if(i%2==0):
+        df[i] = df[i].rename_axis("Rel Evaporation Multi")
+    if(i>1):
+        df[i] = df[i].rename_axis("Malicious Ants Fraction", axis=1)
+    color = color_blue if i<2 else color_green
+    plot = sns.heatmap(df[i], ax=ax, xticklabels = y, yticklabels = x, cmap=color, cbar=not(i%2==0))
+
+plot.figure.savefig("graphs/heatmap_all_data.png")
