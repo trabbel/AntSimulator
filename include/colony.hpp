@@ -35,8 +35,9 @@ struct Colony
 	{
     // std::cout<<std::abs(((double) rand() / (RAND_MAX)));
       // std::cout<<"Normal";
+
     for (uint64_t i(0); i < n; ++i) {
-      if(std::abs(((double) rand() / (RAND_MAX))) > mal_prob)
+      if(i >= mal_prob*n)
       {
         ants.emplace_back(x, y, getRandRange(2.0f * PI), counter_pheromone);
 
