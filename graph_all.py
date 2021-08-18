@@ -26,8 +26,10 @@ for i,ax in enumerate(axn.flat):
     m = i%10
     data = spec_data[e,m]
     ax.plot(data)
+    # ax.set_ylim([0,1.1])
 
 # plt.xlabel('it/erations')
 # plt.ylabel('cumulative food count/# of benevolent ants')
-plt.savefig("graphs/graph_all.png")
+# plt.savefig("graphs/graph_all_ants_fraction.png")
+plt.savefig("graphs/graph_all_food_collected_per_ant.png")
 
