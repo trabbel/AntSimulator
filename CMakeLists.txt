@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 set(PROJECT_NAME AntSimulator)
 project(${PROJECT_NAME} VERSION 1.0.0 LANGUAGES CXX)
-
+#add
 include_directories(/home/aammartayakun/antsim/AntSimulator)
 link_directories(/home/aammartayakun/antsim/AntSimulator)
 
