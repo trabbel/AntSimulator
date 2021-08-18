@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.10)
 set(PROJECT_NAME AntSimulator)
 project(${PROJECT_NAME} VERSION 1.0.0 LANGUAGES CXX)
 #for my mac (installed via homebrew)
-include_directories(/usr/local/include)
-link_directories(/usr/local/lib)
+include_directories(/home/aammartayakun/antsim/AntSimulator)
+link_directories(/home/aammartayakun/antsim/AntSimulator)
 #end for my mac. :( Hope I can get my computer ready soon.
 find_package(OpenGL)
 
