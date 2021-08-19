@@ -17,16 +17,20 @@ for i, e in enumerate(evapor_set):
                 if ("evpr-"+str(e)) in file:
                     # print(m)
                     dt = np.array(pd.read_csv(file, header=None))
-                    spec_data[i,m-1] = dt[-1]
+                    modified_data = dt[-1]
+                    modified_data = (modified_data)/(1-(2**-m))
+                    spec_data[9-i,9-(m-1)] = modified_data
                     break
     
 
 # #heatmap axis
-x = [0,0.5,1.0,2.0,5.0,10,50,100,500,1000]
+x = np.array([0,0.5,1.0,2.0,5.0,10,50,100,500,1000])
 # y = [str(n) for n in range(1,11)]
-y = ['2^-'+str(n) for n in range(1,11)]
-color_blue = sns.color_palette("Blues", as_cmap=True)
-color_green = sns.color_palette("Greens", as_cmap=True)
+y = np.array(['2^-'+str(n) for n in range(1,11)])
+x=x[::-1]
+y=y[::-1]
+color_blue = sns.color_palette("coolwarm_r", as_cmap=True)
+color_green = sns.color_palette("coolwarm_r", as_cmap=True)
 
 fig,axn = plt.subplots(2, 2, sharex=True, sharey=True)
 
