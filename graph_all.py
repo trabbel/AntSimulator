@@ -16,7 +16,9 @@ for i, e in enumerate(evapor_set):
                 if ("evpr-"+str(e)) in file:
                     dt = np.array(pd.read_csv(file, header=None))
                     # print(dt.shape)
-                    spec_data[i,m-1] = dt
+                    modified_data = dt
+                    modified_data = (modified_data)/(1-(2**-m))
+                    spec_data[9-i,9-(m-1)] = modified_data
                     break
     
 fig,axn = plt.subplots(10, 10, sharex=True, sharey=True)
