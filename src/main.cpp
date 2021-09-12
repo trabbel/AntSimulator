@@ -129,13 +129,13 @@ void simulateAnts()
 	int x = 0;
 	int datapoints_to_record = 100;
 	int skip_steps = SIMULATION_STEPS/datapoints_to_record;
-	for(int intens = 0; intens<=intensity_max_power; intens++)
+	for(int i = 0; i<SIMULATION_ITERATIONS; i++)
 	{
-		for(int m = 1; m<=mal_max_power; m++)
+		for(int intens = 0; intens<=intensity_max_power; intens++)
 		{
-			total_food_per_ant = 0.0;
-			for(int i = 0; i<SIMULATION_ITERATIONS; i++)
+			for(int m = 1; m<=mal_max_power; m++)
 			{
+				total_food_per_ant = 0.0;
 				malicious_fraction = std::pow(2, -m);
 				hell_phermn_intensity_multiplier = intens*0.2;
 				myfile.open(file_name_prefix+getExperimentSpecificName(i)+".csv");
@@ -168,6 +168,9 @@ void simulateAnts()
 				std::cout<<"Iteration "<<x++<<" Done"<<std::endl;
 			}
 		}
+		std::cout<<"###########################"<<std::endl;
+		std::cout<<"Experiment "<<i<<" Done"<<std::endl;
+		std::cout<<"###########################"<<std::endl;
 	}
 }
 
