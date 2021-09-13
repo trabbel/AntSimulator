@@ -36,7 +36,7 @@ struct Ant
 		, hits(0)
 		, markers_count(0.0f)
 	    , is_malicious(malicious)
-		, dilusion_counter(0)
+		, dilusion_counter(DILUSION_MAX)
 		, dilusion_patience_threshold(200)
 		, counter_thresh(850)
 		, ant_tracing_pattern(ant_tracing_pattern_arg)
@@ -102,7 +102,7 @@ struct Ant
 			direction.addNow(PI);
 			world.markers.pickFood(position);
 			markers_count = 0.0f;
-			dilusion_counter = 0;
+			dilusion_counter = DILUSION_MAX;
 			food_bits_taken_counter++;
 			found_food = true;
 			return;
@@ -123,6 +123,11 @@ struct Ant
 	{
 		food_bits_taken_counter = 0;
 		food_bits_delivered_counter = 0;
+	}
+
+	static void setDilusionMax(int max_value)
+	{
+		DILUSION_MAX = max_value;
 	}
 
 	void checkColony(const sf::Vector2f colony_position)
@@ -200,17 +205,22 @@ struct Ant
 			}
 			else if(phase == Mode::ToFood)
 			{
-				if (cell->intensity[static_cast<uint32_t>(Mode::CounterPhr)] < counter_thresh)
-				{
-					float value_1 = cell->intensity[static_cast<uint32_t>(Mode::ToFood)];
-					float value_2 = cell->intensity[static_cast<uint32_t>(Mode::ToHell)];
-					value_1 = value_1 == 0 ? 1 : value_1/1000;
-					value_2 = value_2 == 0 ? 1 : value_2/1000;
-					if(value_1 == 1 && value_2 == 1)
-						intensity = 0;
-					else
-						intensity = (1000 * value_1 * value_2);
-				}
+				float temp_intensity = 0;
+				float value_1 = cell->intensity[static_cast<uint32_t>(Mode::ToFood)];
+				float value_2 = cell->intensity[static_cast<uint32_t>(Mode::ToHell)];
+				float ctr_phrmn_intns = cell->intensity[static_cast<uint32_t>(Mode::CounterPhr)];
+				value_1 = value_1 == 0 ? 1 : value_1/1000;
+				value_2 = value_2 == 0 ? 1 : value_2/1000;
+				if(value_1 == 1 && value_2 == 1)
+					temp_intensity = 0;
+				else
+					temp_intensity = (1000 * value_1 * value_2);
+				// intensity = temp_intensity;
+				
+				if (ctr_phrmn_intns < temp_intensity)
+					intensity = temp_intensity;
+				else
+					intensity = 0;
 			}
 			else
 				intensity = cell->intensity[static_cast<uint32_t>(phase)];
@@ -231,21 +241,20 @@ struct Ant
 		if (max_intensity) {
 			if (RNGf::proba(0.4f) && (phase == Mode::ToFood)) {
 				max_cell->intensity[static_cast<uint32_t>(phase)] *= 0.99f;
-				if(phase == Mode::ToFood)
-					dilusion_counter++;
-				// std::cout<<dilusion_counter<<"  ";
-				if (dilusion_counter > dilusion_patience_threshold && counter_pheromone)
+				if (counter_pheromone)
 				{
 					// std::cout<<"Okay";
 					const float coef = 0.01f;
-					const float intensity = 1000.0f * exp(-coef * 10);
+					dilusion_counter = dilusion_counter > 0 ? --dilusion_counter : 0;
+					const float intensity = 1000.0f * exp(-coef * (dilusion_counter));
 					world.addMarker(position, Mode::CounterPhr, intensity);
+					// std::cout<<intensity<<" ";
 				}
 			}
 			direction = getAngle(max_direction);
 		}
 		else
-			dilusion_counter = 0;
+			dilusion_counter = DILUSION_MAX;
 	}
 
 	void addMarker(World& world)
@@ -322,6 +331,7 @@ struct Ant
 	float last_marker;
 	float liberty_coef;
 	int dilusion_counter;
+	inline static int DILUSION_MAX;
 	int dilusion_patience_threshold;
 	float markers_count_dilusion;
 	float counter_thresh;

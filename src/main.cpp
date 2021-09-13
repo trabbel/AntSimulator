@@ -29,14 +29,16 @@
 #define thread_max_count 10
 const bool DISPLAY_GUI = false;
 const int SIMULATION_STEPS = 50000;		// Only used in the data recording, NOT IN GUI
-const int SIMULATION_ITERATIONS = 10;
-float malicious_fraction = 0.10;
+const int SIMULATION_ITERATIONS = 1;
+float malicious_fraction = std::pow(2,-3);
+int dilusion_max = 500;
 int malicious_timer_wait = 100;	
 bool malicious_ants_focus = true;
 AntTracingPattern ant_tracing_pattern = AntTracingPattern::FOOD;
-bool counter_pheromone = false;
+bool counter_pheromone = true;
 float hell_phermn_intensity_multiplier = 1;
 float hell_phermn_evpr_multi = 1.0;
+float cntr_phermn_evpr_multi = 1.0;
 
 std::string getExperimentSpecificName(int iteration)
 {
@@ -81,6 +83,10 @@ void loadUserConf()
 
 void initWorld(World& world, Colony& colony)
 {
+	WorldCell::setHellPhermnEvprMulti(hell_phermn_evpr_multi);
+	Ant::resetFoodBitsCounters();
+	Ant::setDilusionMax(dilusion_max);
+
 	for (uint32_t i(0); i < 64; ++i) {
 		float angle = float(i) / 64.0f * (2.0f * PI);
 		world.addMarker(colony.position + 16.0f * sf::Vector2f(cos(angle), sin(angle)), Mode::ToHome, 10.0f, true);
@@ -101,10 +107,6 @@ void initWorld(World& world, Colony& colony)
 			}
 		}
 	}
-
-	WorldCell::setHellPhermnEvprMulti(hell_phermn_evpr_multi);
-
-	Ant::resetFoodBitsCounters();
 }
 
 void updateColony(World& world, Colony& colony)
@@ -114,7 +116,7 @@ void updateColony(World& world, Colony& colony)
 	world.update(dt);
 }
 
-void oneExperiment(int i, int intens, int m)
+void oneExperiment(int i)
 {
 	std::ofstream myfile;
 	const static float dt = 0.016f;
@@ -123,8 +125,6 @@ void oneExperiment(int i, int intens, int m)
 	static std::string file_name_prefix = "../data/AntSimData";
 	static int x = 0;
 	
-	malicious_fraction = std::pow(2, -m);
-	hell_phermn_intensity_multiplier = intens*0.2;
 	myfile.open(file_name_prefix+getExperimentSpecificName(i)+".csv");
 	// std::cout<<file_name_prefix+getExperimentSpecificName(i)<<std::endl;
 	float food_found_per_ant = 0.0;
@@ -167,16 +167,18 @@ void simulateAnts()
 	int thread_count = 0;
 	int max_combinations = SIMULATION_ITERATIONS * (intensity_max_power+1) * mal_max_power;
 	int current_iter = 0;
-	// std::vector<float> evaporation_set = {0,0.5,1.0,2.0,5.0,10,50,100,500,1000};
+	std::vector<float> evaporation_set = {0,0.5,1.0,2.0,5.0,10,50,100,500,1000};
 	for(int i = 0; i<SIMULATION_ITERATIONS; i++)
 	{
-		for(int intens = 0; intens<=intensity_max_power; intens++)
+		for(int evpr = 0; evpr<=evaporation_set.size(); evpr++)
 		{
 			for(int m = 1; m<=mal_max_power; m++)
 			{
 				if(thread_count<thread_max_count)
 				{
-					myThreads[thread_count++] = std::thread(oneExperiment, i, intens, m);
+					malicious_fraction = std::pow(2, -m);
+					hell_phermn_evpr_multi = evaporation_set.at(evpr);
+					myThreads[thread_count++] = std::thread(oneExperiment, i);
 					if(++current_iter != max_combinations && thread_count<thread_max_count)
 						continue;
 				}
@@ -209,7 +211,7 @@ void displaySimulation()
 
 	sf::Vector2f last_clic;
 	int c = 0;
-	int C = 10;
+	int C = 100;
 
 	while (window.isOpen())
 	{
@@ -235,6 +237,7 @@ void displaySimulation()
 
 		if (!display_manager.pause) {
 			updateColony(world, colony);
+			// std::cout<<std::endl;
 		}
 
 		if(c++>C)

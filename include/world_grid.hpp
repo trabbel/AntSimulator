@@ -17,6 +17,7 @@ struct WorldCell
 	uint32_t wall;
 
 	inline static float hell_phermn_evpr_multi;
+	inline static float cntr_phermn_evpr_multi;
 	
 	WorldCell()
 		: intensity{ 0.0f, 0.0f , 0.0f, 0.0f }
@@ -31,7 +32,7 @@ struct WorldCell
 		intensity[0] -= (!permanent[0]) * dt;
 		intensity[1] -= (!permanent[1]) * dt;
 		intensity[2] -= (!permanent[2]) * dt * hell_phermn_evpr_multi;
-		intensity[3] -= (!permanent[3]) * dt;
+		intensity[3] -= (!permanent[3]) * dt * cntr_phermn_evpr_multi;;
 		// Avoid negative values
 		intensity[0] = std::max(0.0f, intensity[0]);
 		intensity[1] = std::max(0.0f, intensity[1]);
@@ -45,6 +46,11 @@ struct WorldCell
 	static void setHellPhermnEvprMulti(float multiplier)
 	{
 		WorldCell::hell_phermn_evpr_multi = multiplier;
+	}
+
+	static void setCntrPhermnEvprMulti(float multiplier)
+	{
+		WorldCell::cntr_phermn_evpr_multi = multiplier;
 	}
 
 	void pick()
