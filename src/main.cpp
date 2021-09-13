@@ -26,6 +26,7 @@
 * @param counter_pheromone:: Will the ants secret counter pheromone?
 * @param hell_phermn_intensity_multiplier:: multiplier for the intensity of TO_HELL pheromone
 */
+#define thread_max_count 10
 const bool DISPLAY_GUI = false;
 const int SIMULATION_STEPS = 50000;		// Only used in the data recording, NOT IN GUI
 const int SIMULATION_ITERATIONS = 10;
@@ -113,65 +114,82 @@ void updateColony(World& world, Colony& colony)
 	world.update(dt);
 }
 
+void oneExperiment(int i, int intens, int m)
+{
+	std::ofstream myfile;
+	const static float dt = 0.016f;
+	const static int datapoints_to_record = 100;
+	static int skip_steps = SIMULATION_STEPS/datapoints_to_record;
+	static std::string file_name_prefix = "../data/AntSimData";
+	static int x = 0;
+	
+	malicious_fraction = std::pow(2, -m);
+	hell_phermn_intensity_multiplier = intens*0.2;
+	myfile.open(file_name_prefix+getExperimentSpecificName(i)+".csv");
+	// std::cout<<file_name_prefix+getExperimentSpecificName(i)<<std::endl;
+	float food_found_per_ant = 0.0;
+	float food_delivered_per_ant = 0.0;
+	float fraction_of_ants_found_food = 0.0;
+	float fraction_of_ants_delivered_food = 0.0;
+
+	World world(Conf::WORLD_WIDTH, Conf::WORLD_HEIGHT);
+	Colony colony(Conf::COLONY_POSITION.x, Conf::COLONY_POSITION.y, Conf::ANTS_COUNT, 
+	malicious_fraction, malicious_timer_wait, malicious_ants_focus, ant_tracing_pattern, 
+	counter_pheromone, hell_phermn_intensity_multiplier);
+	initWorld(world, colony);	
+
+	for(int j = 0; j<SIMULATION_STEPS; j++)
+	{
+		updateColony(world, colony);
+		if(j%skip_steps == 0)
+		{
+			food_found_per_ant = float(Ant::getFoodBitsTaken())/float(1024); // Total  number of Ants 
+			food_delivered_per_ant = float(Ant::getFoodBitsDelivered())/float(1024); // Total  number of Ants 
+			fraction_of_ants_found_food = float(Colony::getAntsThatFoundFood())/float(1024);
+			fraction_of_ants_delivered_food = float(Colony::getAntsThatDeliveredFood())/float(1024);
+			myfile  << (food_found_per_ant)<< "," << food_delivered_per_ant << "," 
+					<< fraction_of_ants_found_food << "," << fraction_of_ants_delivered_food<<std::endl;
+		}
+	}
+	myfile.close();
+	std::cout<<"Iteration "<<x++<<" Done"<<std::endl;
+
+}
+
 void simulateAnts()
 {
-	const static float dt = 0.016f;
-	std::ofstream myfile;
 	/**
 	 * @brief This loop will start a new colony and run the sim for SIMULATION_STEPS number of steps
 	 */
 	int mal_max_power = 10;
 	int intensity_max_power = 10;
-	int counter = 0;
-	float total_food_per_ant = 00.0;
-	std::string file_name_prefix = "../data/AntSimData";
+	std::thread myThreads[thread_max_count];
+	int thread_count = 0;
+	int max_combinations = SIMULATION_ITERATIONS * (intensity_max_power+1) * mal_max_power;
+	int current_iter = 0;
 	// std::vector<float> evaporation_set = {0,0.5,1.0,2.0,5.0,10,50,100,500,1000};
-	int x = 0;
-	int datapoints_to_record = 100;
-	int skip_steps = SIMULATION_STEPS/datapoints_to_record;
 	for(int i = 0; i<SIMULATION_ITERATIONS; i++)
 	{
 		for(int intens = 0; intens<=intensity_max_power; intens++)
 		{
 			for(int m = 1; m<=mal_max_power; m++)
 			{
-				total_food_per_ant = 0.0;
-				malicious_fraction = std::pow(2, -m);
-				hell_phermn_intensity_multiplier = intens*0.2;
-				myfile.open(file_name_prefix+getExperimentSpecificName(i)+".csv");
-				// std::cout<<file_name_prefix+getExperimentSpecificName(i)<<std::endl;
-				float food_found_per_ant = 0.0;
-				float food_delivered_per_ant = 0.0;
-				float fraction_of_ants_found_food = 0.0;
-				float fraction_of_ants_delivered_food = 0.0;
-
-				World world(Conf::WORLD_WIDTH, Conf::WORLD_HEIGHT);
-				Colony colony(Conf::COLONY_POSITION.x, Conf::COLONY_POSITION.y, Conf::ANTS_COUNT, 
-				malicious_fraction, malicious_timer_wait, malicious_ants_focus, ant_tracing_pattern, 
-				counter_pheromone, hell_phermn_intensity_multiplier);
-				initWorld(world, colony);	
-
-				for(int j = 0; j<SIMULATION_STEPS; j++)
+				if(thread_count<thread_max_count)
 				{
-					updateColony(world, colony);
-					if(j%skip_steps == 0)
-					{
-						food_found_per_ant = float(Ant::getFoodBitsTaken())/float(1024); // Total  number of Ants 
-						food_delivered_per_ant = float(Ant::getFoodBitsDelivered())/float(1024); // Total  number of Ants 
-						fraction_of_ants_found_food = float(Colony::getAntsThatFoundFood())/float(1024);
-						fraction_of_ants_delivered_food = float(Colony::getAntsThatDeliveredFood())/float(1024);
-						myfile  << (food_found_per_ant)<< "," << food_delivered_per_ant << "," 
-								<< fraction_of_ants_found_food << "," << fraction_of_ants_delivered_food<<std::endl;
-					}
+					myThreads[thread_count++] = std::thread(oneExperiment, i, intens, m);
+					if(++current_iter != max_combinations && thread_count<thread_max_count)
+						continue;
 				}
-				myfile.close();
-				std::cout<<"Iteration "<<x++<<" Done"<<std::endl;
+				for(int th = 0; th<std::min(thread_max_count, thread_count); th++)
+					myThreads[th].join();
+				thread_count = 0;
 			}
 		}
 		std::cout<<"###########################"<<std::endl;
 		std::cout<<"Experiment "<<i<<" Done"<<std::endl;
 		std::cout<<"###########################"<<std::endl;
 	}
+	std::cout<<"########## DONE ##########"<<std::endl;
 }
 
 void displaySimulation()
