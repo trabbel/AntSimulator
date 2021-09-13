@@ -1,0 +1,48 @@
+Main:
+    CALL initColony
+    FOR each_ant in colony
+        CALL updateAnt
+    END FOR
+
+
+Function initColony:
+    SET patience to patience_max
+    SET distance_covered = 0
+END Function
+
+
+Function updateAnt:
+    FOR direction in front semicircle
+        CALL updatePheromonesIntensity
+        IF ant_mode is find_food
+            CALL secretHomePheromone
+            IF found_food THEN
+                SET patience to patience_max
+                SET ant_mode to deliver_food
+                SET direction to (direction + PI)
+                RETURN
+            IF food_pheromone_intensity == 0
+                SET patience to patience_max
+                move ant randomly
+            ELSE IF food_pheromone_intensity < caution_pheromone_intensity
+                CALL secretPheromoneCautionPheromone
+                move ant to follow food_pheromone direction
+            ELSE 
+                move ant randomly
+            END IF
+        CALL move_ant
+END Function
+
+
+Function secretHomePheromone
+    SET coef = 0.01
+    intensity = 1000*exp(-coef * distance_covered++)
+    deposit home_pheromone with intensity
+END Function
+
+
+Function secretPheromoneCautionPheromone
+    SET coef = 0.01
+    intensity = 1000*exp(-coef * patience--)
+    deposit home_pheromone with intensity
+END Function
