@@ -43,6 +43,13 @@ struct Ant
 		, counter_pheromone(counter_pheromone_arg)
 		, hell_phermn_intensity_multiplier(hell_phermn_intensity_multiplier_arg)
 	{
+		static bool mal_ant_counted;
+		if(is_malicious)
+			if(!mal_ant_counted)
+			{
+				mal_ant_counted = true;
+				first_mal_ant = true;
+			}
 	}
 
 	void update(const float dt, World& world, bool wreak_havoc)
@@ -101,6 +108,7 @@ struct Ant
 			phase = Mode::ToHome;
 			direction.addNow(PI);
 			world.markers.pickFood(position);
+			// if(!is_malicious) 
 			markers_count = 0.0f;
 			dilusion_counter = DILUSION_MAX;
 			food_bits_taken_counter++;
@@ -139,6 +147,7 @@ struct Ant
 				food_bits_delivered_counter++;
 				delivered_food_home = true;
 			}
+			// if(!is_malicious)
 			markers_count = 0.0f;
 		}
 	}
@@ -196,12 +205,7 @@ struct Ant
 					value_1 = cell->intensity[static_cast<uint32_t>(Mode::ToHome)];
 					value_2 = 0;//cell->intensity[static_cast<uint32_t>(Mode::ToHell)];
 				}
-				value_1 = value_1 == 0 ? 1 : value_1/1000;
-				value_2 = value_2 == 0 ? 1 : value_2/1000;
-				if(value_1 == 1 && value_2 == 1)
-					intensity = 0;
-				else
-					intensity = (1000 * value_1 * value_2);
+				intensity = std::max(value_1, value_2);
 			}
 			else if(phase == Mode::ToFood)
 			{
@@ -209,12 +213,7 @@ struct Ant
 				float value_1 = cell->intensity[static_cast<uint32_t>(Mode::ToFood)];
 				float value_2 = cell->intensity[static_cast<uint32_t>(Mode::ToHell)];
 				float ctr_phrmn_intns = cell->intensity[static_cast<uint32_t>(Mode::CounterPhr)];
-				value_1 = value_1 == 0 ? 1 : value_1/1000;
-				value_2 = value_2 == 0 ? 1 : value_2/1000;
-				if(value_1 == 1 && value_2 == 1)
-					temp_intensity = 0;
-				else
-					temp_intensity = (1000 * value_1 * value_2);
+				temp_intensity = std::max(value_1, value_2);
 				// intensity = temp_intensity;
 				
 				if (ctr_phrmn_intns < temp_intensity)
@@ -267,6 +266,8 @@ struct Ant
 		{
 			trace = Mode::ToHell;
 			intensity *= hell_phermn_intensity_multiplier;
+			// if(first_mal_ant)
+			// 	std::cout<<markers_count<<"  ";
 			// intensity = 1000.0f * hell_phermn_intensity_multiplier;
 			// std::cout<<intensity<<"  ";
 		}
@@ -344,4 +345,5 @@ struct Ant
 	inline static int food_bits_delivered_counter;
 	bool found_food = false;
 	bool delivered_food_home = false;
+	bool first_mal_ant = false;
 };
