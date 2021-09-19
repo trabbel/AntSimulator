@@ -26,8 +26,7 @@
 * @param counter_pheromone:: Will the ants secret counter pheromone?
 * @param hell_phermn_intensity_multiplier:: multiplier for the intensity of TO_HELL pheromone
 */
-#define thread_max_count 10
-const bool DISPLAY_GUI = false;
+const bool DISPLAY_GUI = true;
 const int SIMULATION_STEPS = 50000;		// Only used in the data recording, NOT IN GUI
 const int SIMULATION_ITERATIONS = 1;
 float malicious_fraction = std::pow(2,-3);
@@ -35,7 +34,7 @@ int dilusion_max = 500;
 int malicious_timer_wait = 100;	
 bool malicious_ants_focus = true;
 AntTracingPattern ant_tracing_pattern = AntTracingPattern::FOOD;
-bool counter_pheromone = true;
+bool counter_pheromone = false;
 float hell_phermn_intensity_multiplier = 1;
 float hell_phermn_evpr_multi = 1.0;
 float cntr_phermn_evpr_multi = 1.0;
@@ -163,28 +162,21 @@ void simulateAnts()
 	 */
 	int mal_max_power = 10;
 	int intensity_max_power = 10;
-	std::thread myThreads[thread_max_count];
-	int thread_count = 0;
-	int max_combinations = SIMULATION_ITERATIONS * (intensity_max_power+1) * mal_max_power;
-	int current_iter = 0;
 	std::vector<float> evaporation_set = {0,0.5,1.0,2.0,5.0,10,50,100,500,1000};
+	// std::vector<float> evaporation_set = {0,0.5};
+	// std::vector<float> evaporation_set = {1.0,2.0};
+	// std::vector<float> evaporation_set = {5.0,10};
+	// std::vector<float> evaporation_set = {50,100};
+	// std::vector<float> evaporation_set = {500,1000};
 	for(int i = 0; i<SIMULATION_ITERATIONS; i++)
 	{
-		for(int evpr = 0; evpr<=evaporation_set.size(); evpr++)
+		for(int evpr = 0; evpr<evaporation_set.size(); evpr++)
 		{
 			for(int m = 1; m<=mal_max_power; m++)
 			{
-				if(thread_count<thread_max_count)
-				{
-					malicious_fraction = std::pow(2, -m);
-					hell_phermn_evpr_multi = evaporation_set.at(evpr);
-					myThreads[thread_count++] = std::thread(oneExperiment, i);
-					if(++current_iter != max_combinations && thread_count<thread_max_count)
-						continue;
-				}
-				for(int th = 0; th<std::min(thread_max_count, thread_count); th++)
-					myThreads[th].join();
-				thread_count = 0;
+				malicious_fraction = std::pow(2, -m);
+				hell_phermn_evpr_multi = evaporation_set.at(evpr);
+				oneExperiment(i);
 			}
 		}
 		std::cout<<"###########################"<<std::endl;
@@ -211,7 +203,7 @@ void displaySimulation()
 
 	sf::Vector2f last_clic;
 	int c = 0;
-	int C = 100;
+	int C = -100;
 
 	while (window.isOpen())
 	{
