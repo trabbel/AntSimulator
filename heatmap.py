@@ -6,6 +6,7 @@ import glob
 
 path = r'./data' # use your path
 evapor_set = [0.0,0.5,1.0,2.0,5.0,10.0,50.0,100.0,500.0,1000.0]
+evapor_set.reverse()
 all_files = glob.glob(path + "/*_iter-0.csv")
 
 spec_data = np.zeros((10,10,4))
@@ -24,7 +25,7 @@ for i, e in enumerate(evapor_set):
     
 
 # #heatmap axis
-x = np.array([0,0.5,1.0,2.0,5.0,10,50,100,500,1000])
+x = np.array(evapor_set)
 # y = [str(n) for n in range(1,11)]
 y = np.array(['2^-'+str(n) for n in range(1,11)])
 x=x[::-1]
