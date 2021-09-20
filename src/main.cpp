@@ -26,7 +26,7 @@
 * @param counter_pheromone:: Will the ants secret counter pheromone?
 * @param hell_phermn_intensity_multiplier:: multiplier for the intensity of TO_HELL pheromone
 */
-const bool DISPLAY_GUI = true;
+const bool DISPLAY_GUI = false;
 const int SIMULATION_STEPS = 50000;		// Only used in the data recording, NOT IN GUI
 const int SIMULATION_ITERATIONS = 1;
 float malicious_fraction = std::pow(2,-3);
