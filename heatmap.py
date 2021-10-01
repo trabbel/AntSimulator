@@ -4,7 +4,7 @@ import pandas as pd
 import seaborn as sns
 import glob
 
-path = r'./data' # use your path
+path = r'./data_exp-mal_frac-mal_evpr_rate-one_iter' # use your path
 evapor_set = [0.0,0.5,1.0,2.0,5.0,10.0,50.0,100.0,500.0,1000.0]
 evapor_set.reverse()
 all_files = glob.glob(path + "/*_iter-0.csv")
@@ -27,7 +27,7 @@ for i, e in enumerate(evapor_set):
 # #heatmap axis
 x = np.array(evapor_set)
 # y = [str(n) for n in range(1,11)]
-y = np.array(['2^-'+str(n) for n in range(1,11)])
+y = np.array(["50.00","25.00","12.50","6.25","3.13","1.56","0.78","0.39","0.20","0.10"])
 x=x[::-1]
 y=y[::-1]
 color_blue = sns.color_palette("coolwarm_r", as_cmap=True)
@@ -47,5 +47,6 @@ for i,ax in enumerate(axn.flat):
         df[i] = df[i].rename_axis("Malicious Ants Fraction", axis=1)
     color = color_blue if i<2 else color_green
     plot = sns.heatmap(df[i], ax=ax, xticklabels = y, yticklabels = x, cmap=color, cbar=not(i%2==0))
+    plt.xticks(rotation = 45)
 
 plot.figure.savefig("graphs/heatmap_all_data.png")

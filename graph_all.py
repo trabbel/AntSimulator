@@ -3,8 +3,9 @@ import pandas as pd
 import numpy as np
 import glob
 
-path = r'./data' # use your path
+path = r'./data_exp-mal_frac-mal_evpr_rate-one_iter' # use your path
 evapor_set = [0.0,0.5,1.0,2.0,5.0,10.0,50.0,100.0,500.0,1000.0]
+evapor_set = evapor_set[::-1]
 all_files = glob.glob(path + "/*_iter-0.csv")
 
 spec_data = np.zeros((10,10,100,4))
@@ -20,7 +21,7 @@ for i, e in enumerate(evapor_set):
                     modified_data = (modified_data)/(1-(2**-m))
                     spec_data[9-i,9-(m-1)] = modified_data
                     break
-    
+
 fig,axn = plt.subplots(10, 10, sharex=True, sharey=True)
 
 for i,ax in enumerate(axn.flat):

@@ -109,7 +109,7 @@ struct Ant
 			direction.addNow(PI);
 			world.markers.pickFood(position);
 			// if(!is_malicious) 
-			markers_count = 0.0f;
+				markers_count = 0.0f;
 			dilusion_counter = DILUSION_MAX;
 			food_bits_taken_counter++;
 			found_food = true;
@@ -148,7 +148,7 @@ struct Ant
 				delivered_food_home = true;
 			}
 			// if(!is_malicious)
-			markers_count = 0.0f;
+				markers_count = 0.0f;
 		}
 	}
 	bool nearColony(const sf::Vector2f colony_position, float atol = 15.0f){
