@@ -28,16 +28,17 @@
 */
 const bool DISPLAY_GUI = false;
 const int SIMULATION_STEPS = 50000;		// Only used in the data recording, NOT IN GUI
-const int SIMULATION_ITERATIONS = 1;
-float malicious_fraction = std::pow(2,-3);
+const int SIMULATION_ITERATIONS = 100;
+float malicious_fraction = std::pow(2,-2);
 int dilusion_max = 500;
 int malicious_timer_wait = 100;	
 bool malicious_ants_focus = true;
 AntTracingPattern ant_tracing_pattern = AntTracingPattern::FOOD;
-bool counter_pheromone = false;
+bool counter_pheromone = true;
 float hell_phermn_intensity_multiplier = 1;
-float hell_phermn_evpr_multi = 1.0;
+float hell_phermn_evpr_multi = 10.0;
 float cntr_phermn_evpr_multi = 1.0;
+int dilusion_increment = 500;
 
 std::string getExperimentSpecificName(int iteration)
 {
@@ -51,6 +52,8 @@ std::string ant_tracing_pattern_string = "_ant_tracing-" + std::to_string(ant_tr
 std::string counter_pheromone_string = "_ctr_pherm-" + std::to_string(counter_pheromone);
 std::string hell_phermn_intensity_multiplier_string = "_hell_phermn_intens-" + std::to_string(hell_phermn_intensity_multiplier);
 std::string hell_phermn_evpr_multi_string = "_hell_phermn_evpr-" + std::to_string(hell_phermn_evpr_multi);
+std::string dilusion_max_string = "_dil_max-" + std::to_string(dilusion_max);
+std::string dilusion_increment_string = "_dil_incr-" + std::to_string(dilusion_increment);
 std::string iteration_string = "_iter-" + std::to_string(iteration);
 
 return SIMULATION_STEPS_string
@@ -62,6 +65,8 @@ return SIMULATION_STEPS_string
 		+ counter_pheromone_string
 		+ hell_phermn_intensity_multiplier_string
 		+ hell_phermn_evpr_multi_string
+		+ dilusion_max_string
+		+ dilusion_increment_string
 		+ iteration_string;
 }
 
@@ -80,12 +85,17 @@ void loadUserConf()
 	}
 }
 
-void initWorld(World& world, Colony& colony)
+void setStaticVariables()
 {
 	WorldCell::setHellPhermnEvprMulti(hell_phermn_evpr_multi);
 	Ant::resetFoodBitsCounters();
 	Ant::setDilusionMax(dilusion_max);
+	Ant::setDilusionIncrement(dilusion_increment);
+}
 
+void initWorld(World& world, Colony& colony)
+{
+	setStaticVariables();
 	for (uint32_t i(0); i < 64; ++i) {
 		float angle = float(i) / 64.0f * (2.0f * PI);
 		world.addMarker(colony.position + 16.0f * sf::Vector2f(cos(angle), sin(angle)), Mode::ToHome, 10.0f, true);
@@ -121,7 +131,7 @@ void oneExperiment(int i)
 	const static float dt = 0.016f;
 	const static int datapoints_to_record = 100;
 	static int skip_steps = SIMULATION_STEPS/datapoints_to_record;
-	static std::string file_name_prefix = "../data/AntSimData";
+	static std::string file_name_prefix = "../data_exp-counters-multi-iteration/AntSimData";
 	static int x = 0;
 	
 	myfile.open(file_name_prefix+getExperimentSpecificName(i)+".csv");
@@ -130,7 +140,8 @@ void oneExperiment(int i)
 	float food_delivered_per_ant = 0.0;
 	float fraction_of_ants_found_food = 0.0;
 	float fraction_of_ants_delivered_food = 0.0;
-
+	
+	setStaticVariables();
 	World world(Conf::WORLD_WIDTH, Conf::WORLD_HEIGHT);
 	Colony colony(Conf::COLONY_POSITION.x, Conf::COLONY_POSITION.y, Conf::ANTS_COUNT, 
 	malicious_fraction, malicious_timer_wait, malicious_ants_focus, ant_tracing_pattern, 
@@ -160,22 +171,16 @@ void simulateAnts()
 	/**
 	 * @brief This loop will start a new colony and run the sim for SIMULATION_STEPS number of steps
 	 */
-	int mal_max_power = 10;
-	int intensity_max_power = 10;
-	std::vector<float> evaporation_set = {0,0.5,1.0,2.0,5.0,10,50,100,500,1000};
-	// std::vector<float> evaporation_set = {0,0.5};
-	// std::vector<float> evaporation_set = {1.0,2.0};
-	// std::vector<float> evaporation_set = {5.0,10};
-	// std::vector<float> evaporation_set = {50,100};
-	// std::vector<float> evaporation_set = {500,1000};
+	std::vector<int> dilusion_max_set = {50, 100, 250, 500, 750, 1000};
+	std::vector<int> dilusion_increment_power = {1, 2, 5, 10, 50, 100, 1000};
 	for(int i = 0; i<SIMULATION_ITERATIONS; i++)
 	{
-		for(int evpr = 0; evpr<evaporation_set.size(); evpr++)
+		for(int dil_max = 0; dil_max<dilusion_max_set.size(); dil_max++)
 		{
-			for(int m = 1; m<=mal_max_power; m++)
+			for(int dil_incr = 0; dil_incr<dilusion_increment_power.size(); dil_incr++)
 			{
-				malicious_fraction = std::pow(2, -m);
-				hell_phermn_evpr_multi = evaporation_set.at(evpr);
+				dilusion_max = dilusion_max_set.at(dil_max);
+				dilusion_increment = dilusion_max/dilusion_increment_power.at(dil_incr);
 				oneExperiment(i);
 			}
 		}
@@ -188,6 +193,7 @@ void simulateAnts()
 
 void displaySimulation()
 {
+	setStaticVariables();
 	World world(Conf::WORLD_WIDTH, Conf::WORLD_HEIGHT);
 	Colony colony(Conf::COLONY_POSITION.x, Conf::COLONY_POSITION.y, Conf::ANTS_COUNT, 
 	malicious_fraction, malicious_timer_wait, malicious_ants_focus, ant_tracing_pattern, 
