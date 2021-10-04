@@ -138,6 +138,11 @@ struct Ant
 		DILUSION_MAX = max_value;
 	}
 
+	static void setDilusionIncrement(int increment_value)
+	{
+		DILUSION_INCREMENT = increment_value;
+	}
+
 	void checkColony(const sf::Vector2f colony_position)
 	{
 		if (getLength(position - colony_position) < colony_size) {
@@ -253,7 +258,8 @@ struct Ant
 			direction = getAngle(max_direction);
 		}
 		else
-			dilusion_counter = DILUSION_MAX;
+			// dilusion_counter = DILUSION_MAX;
+			dilusion_counter = std::min(DILUSION_MAX, dilusion_counter+DILUSION_INCREMENT);
 	}
 
 	void addMarker(World& world)
@@ -343,6 +349,7 @@ struct Ant
 	float hell_phermn_intensity_multiplier;
 	inline static int food_bits_taken_counter;
 	inline static int food_bits_delivered_counter;
+	inline static int DILUSION_INCREMENT;
 	bool found_food = false;
 	bool delivered_food_home = false;
 	bool first_mal_ant = false;
