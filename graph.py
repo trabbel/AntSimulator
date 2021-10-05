@@ -26,11 +26,11 @@ plt.setp(l2,linestyle='--', linewidth=2)
 plt.setp(l3, linestyle=':', linewidth=2)
 plt.setp(l4, linestyle='-.', linewidth=2)  
 par1.set_ylim(0, 1) #set y range for fraction to be between 0 - 1
-plt.xlabel('iterations') #x axis
+plt.xlabel('Iterations') #x axis
 plt.ylabel('Food bits per ants', fontsize=20) #left axis
-par1.set_ylabel("Fraction of ants", fontsize=20) #right axis
+par1.set_ylabel("Percentage of cooperators", fontsize=20) #right axis
 par1.legend()
 host.legend([l1,l2],['Food bits per ant collected from source','Food bits per ant delivered food to nest']) #change legends here for left data
-par1.legend([l3,l4],['Fraction of ants that collected food from source', 'Fraction of ants that delivered food to nest']) #change legends here for right data
-plt.savefig(foldername+"graphs/"+filename+".png",dpi = 400, facecolor=host.get_facecolor()) 
+par1.legend([l3,l4],['Ants that collected food', 'Ants that delivered food to nest']) #change legends here for right data
+plt.savefig(foldername+"graphs/"+filename+".png",dpi = 400, facecolor=host.get_facecolor())
 #plt.savefig(foldername+"graphs/1.png",dpi = 400, facecolor=host.get_facecolor()) #modified for windows, need to change back
