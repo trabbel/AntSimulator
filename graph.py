@@ -20,12 +20,12 @@ par1 = host.twinx()
 par1.axis["right"].toggle(all=True)
 #define which one will get plot
 l1,l2 = host.plot(data[0:2].T) #this is the left axis data
-l3,l4 = par1.plot(data[2:4].T) #this is the right axis data
+l3,l4 = par1.plot(100*data[2:4].T) #this is the right axis data, multiply by 100 to make it percentage.
 #change the style of line here
 plt.setp(l2,linestyle='--', linewidth=2) 
 plt.setp(l3, linestyle=':', linewidth=2)
 plt.setp(l4, linestyle='-.', linewidth=2)  
-par1.set_ylim(0, 1) #set y range for fraction to be between 0 - 1
+par1.set_ylim(0, 100) #set y range for fraction to be between 0 - 100
 plt.xlabel('Iterations') #x axis
 plt.ylabel('Food bits per ants', fontsize=20) #left axis
 par1.set_ylabel("Percentage of cooperators", fontsize=20) #right axis
