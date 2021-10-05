@@ -31,6 +31,6 @@ plt.ylabel('Food bits per ants', fontsize=20) #left axis
 par1.set_ylabel("Percentage of cooperators", fontsize=20) #right axis
 par1.legend()
 host.legend([l1,l2],['Food bits per ant collected from source','Food bits per ant delivered food to nest']) #change legends here for left data
-par1.legend([l3,l4],['Ants that collected food', 'Ants that delivered food to nest']) #change legends here for right data
+par1.legend([l3,l4],['Successful collectors', 'Successful deliverers'])  #change legends here for right data
 plt.savefig(foldername+"graphs/"+filename+".png",dpi = 400, facecolor=host.get_facecolor())
 #plt.savefig(foldername+"graphs/1.png",dpi = 400, facecolor=host.get_facecolor()) #modified for windows, need to change back
