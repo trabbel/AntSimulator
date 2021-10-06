@@ -28,15 +28,15 @@
 */
 const bool DISPLAY_GUI = false;
 const int SIMULATION_STEPS = 50000;		// Only used in the data recording, NOT IN GUI
-const int SIMULATION_ITERATIONS = 100;
-float malicious_fraction = std::pow(2,-2);
+const int SIMULATION_ITERATIONS = 4;
+float malicious_fraction = std::pow(2,-6);
 int dilusion_max = 500;
 int malicious_timer_wait = 100;	
 bool malicious_ants_focus = true;
 AntTracingPattern ant_tracing_pattern = AntTracingPattern::FOOD;
 bool counter_pheromone = true;
 float hell_phermn_intensity_multiplier = 1;
-float hell_phermn_evpr_multi = 10.0;
+float hell_phermn_evpr_multi = 1.0;
 float cntr_phermn_evpr_multi = 1.0;
 int dilusion_increment = 500;
 
@@ -131,7 +131,7 @@ void oneExperiment(int i)
 	const static float dt = 0.016f;
 	const static int datapoints_to_record = 100;
 	static int skip_steps = SIMULATION_STEPS/datapoints_to_record;
-	static std::string file_name_prefix = "../data_exp-counters-multi-iteration/AntSimData";
+	static std::string file_name_prefix = "../data/AntSimData";
 	static int x = 0;
 	
 	myfile.open(file_name_prefix+getExperimentSpecificName(i)+".csv");
@@ -173,7 +173,8 @@ void simulateAnts()
 	 */
 	std::vector<int> dilusion_max_set = {50, 100, 250, 500, 750, 1000};
 	std::vector<int> dilusion_increment_power = {1, 2, 5, 10, 50, 100, 1000};
-	for(int i = 0; i<SIMULATION_ITERATIONS; i++)
+	int staring_iter = 40;
+	for(int i = staring_iter; i<staring_iter+SIMULATION_ITERATIONS; i++)
 	{
 		for(int dil_max = 0; dil_max<dilusion_max_set.size(); dil_max++)
 		{
