@@ -25,7 +25,7 @@ struct Ant
 	 * @param ant_tracing_pattern_arg Should malicious ants trace food pheromone or roam randomly
 	 * @param hell_phermn_intensity_multiplier_arg multiplier for the intensity of TO_HELL pheromone
 	 */
-	Ant(float x, float y, float angle, bool counter_pheromone_arg = false,
+	Ant(float x, float y, float angle, bool counter_pheromone_arg = false, bool phermn_for_food = false, bool cunning = false,
 		bool malicious=false, AntTracingPattern ant_tracing_pattern_arg = AntTracingPattern::RANDOM, float hell_phermn_intensity_multiplier_arg = 1.0)
 		: position(x, y)
 		, direction(angle)
@@ -35,13 +35,15 @@ struct Ant
 		, liberty_coef(RNGf::getRange(0.0001f, 0.001f))
 		, hits(0)
 		, markers_count(0.0f)
-	    , is_malicious(malicious)
+	    	, is_malicious(malicious)
 		, dilusion_counter(DILUSION_MAX)
 		, dilusion_patience_threshold(200)
 		, counter_thresh(850)
 		, ant_tracing_pattern(ant_tracing_pattern_arg)
 		, counter_pheromone(counter_pheromone_arg)
 		, hell_phermn_intensity_multiplier(hell_phermn_intensity_multiplier_arg)
+		, phermn_for_food(phermn_for_food)
+		, cunning(cunning)
 	{
 		static bool mal_ant_counted;
 		if(is_malicious)
@@ -55,10 +57,42 @@ struct Ant
 	void update(const float dt, World& world, bool wreak_havoc)
 	{
 		updatePosition(world, dt);
-		if(is_malicious && wreak_havoc)
+		if(is_malicious && wreak_havoc){
+		if(cunning && food_taken && markers_count > 200){
+			phase = Mode::ToHome;
+		}else{
+			phase = Mode::ToHell;
+		}
+		
+		
+		std::cout<<markers_count<<std::endl;
+		
+		}
+		/*if(is_malicious && wreak_havoc){
+		if(phase == Mode::ToHell){
+		std::cout<<0<<std::endl;
+		}
+		if(phase == Mode::ToFood){
+		std::cout<<1<<std::endl;
+		}
+		if(phase == Mode::ToHome){
+		std::cout<<2<<std::endl;
+		}
+		if(markers_count > 1000){
+			if(food_taken)
+				{
+				phase = Mode::ToHome;
+			}else
+				{
+				phase = Mode::ToFood;
+				}
+		}else{
 		phase = Mode::ToHell;
+		}
+		}*/
+		//checkFood(world);
 
-		if (phase == Mode::ToFood) {
+		if (!food_taken){//phase == Mode::ToFood) {
 			checkFood(world);
 		}
 
@@ -105,10 +139,13 @@ struct Ant
 	void checkFood(World& world)
 	{
 		if (world.markers.isOnFood(position)) {
-			phase = Mode::ToHome;
+			if(!is_malicious){
+				phase = Mode::ToHome;
+			}
+			food_taken = true;
 			direction.addNow(PI);
 			world.markers.pickFood(position);
-			// if(!is_malicious) 
+			if(!is_malicious) 
 				markers_count = 0.0f;
 			dilusion_counter = DILUSION_MAX;
 			food_bits_taken_counter++;
@@ -146,14 +183,23 @@ struct Ant
 	void checkColony(const sf::Vector2f colony_position)
 	{
 		if (getLength(position - colony_position) < colony_size) {
-			if (phase == Mode::ToHome) {
-				phase = Mode::ToFood;
+			if (food_taken){//phase == Mode::ToHome) {
+				if (is_malicious){
+					phase = Mode::ToHell;
+				}else{
+					phase = Mode::ToFood;
+				}
 				direction.addNow(PI);
 				food_bits_delivered_counter++;
 				delivered_food_home = true;
+				markers_count = 0.0f;
+				food_taken = false;
+			}
+			if (is_malicious && !phermn_for_food){
+				markers_count = 0.0f;
 			}
 			// if(!is_malicious)
-				markers_count = 0.0f;
+				//markers_count = 0.0f;
 		}
 	}
 	bool nearColony(const sf::Vector2f colony_position, float atol = 15.0f){
@@ -287,8 +333,8 @@ struct Ant
 
 	void render_food(sf::RenderTarget& target, const sf::RenderStates& states) const
 	{
-		if (phase == Mode::ToHome) {
-			const float radius = 2.0f;
+		if (food_taken) {
+			const float radius = 10.0f;
 			sf::CircleShape circle(radius);
 			circle.setOrigin(radius, radius);
 			circle.setPosition(position + length * 0.65f * direction.getVec());
@@ -332,7 +378,7 @@ struct Ant
 	sf::Vector2f position;
 	Direction direction;
 	uint32_t hits;
-
+	bool food_taken = false;
 	float last_direction_update;
 	float markers_count;
 	float last_marker;
@@ -353,4 +399,6 @@ struct Ant
 	bool found_food = false;
 	bool delivered_food_home = false;
 	bool first_mal_ant = false;
+	bool phermn_for_food = false;
+	bool cunning = false;
 };

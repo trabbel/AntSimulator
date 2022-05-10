@@ -26,19 +26,21 @@
 * @param counter_pheromone:: Will the ants secret counter pheromone?
 * @param hell_phermn_intensity_multiplier:: multiplier for the intensity of TO_HELL pheromone
 */
-const bool DISPLAY_GUI = false;
+const bool DISPLAY_GUI = true;
 const int SIMULATION_STEPS = 50000;		// Only used in the data recording, NOT IN GUI
-const int SIMULATION_ITERATIONS = 100;
-float malicious_fraction = std::pow(2,-2);
-int dilusion_max = 500;
+const int SIMULATION_ITERATIONS = 10;
+float malicious_fraction = 0.1250;//std::pow(2,-2);
+int dilusion_max = 250;
 int malicious_timer_wait = 100;	
 bool malicious_ants_focus = true;
 AntTracingPattern ant_tracing_pattern = AntTracingPattern::FOOD;
-bool counter_pheromone = true;
-float hell_phermn_intensity_multiplier = 1;
-float hell_phermn_evpr_multi = 10.0;
+bool counter_pheromone = false;
+float hell_phermn_intensity_multiplier = 1.0;
+float hell_phermn_evpr_multi = 5.0;
 float cntr_phermn_evpr_multi = 1.0;
-int dilusion_increment = 500;
+int dilusion_increment = 2;//500
+bool phermn_for_food = true;
+bool cunning = true;
 
 std::string getExperimentSpecificName(int iteration)
 {
@@ -109,7 +111,11 @@ void initWorld(World& world, Colony& colony)
 				if (food_map.getPixel(x, y).g > 100) {
 					///////////////////
 					// FOOD POSITION
-					world.addFoodAt(position.x/10, position.y/10, 5);
+					int food_intensity = 100;
+					world.addFoodAt(position.x/10, position.y/10, food_intensity);
+					//world.addFoodAt(position.x/10+1200, position.y/10, food_intensity);
+					//world.addFoodAt(position.x/10, position.y/10+1000, food_intensity);
+					//world.addFoodAt(position.x/10+1200, position.y/10+1000, food_intensity);
 				} else if (food_map.getPixel(x, y).r > 100) {
 					world.addWall(position);
 				}
@@ -131,11 +137,11 @@ void oneExperiment(int i)
 	const static float dt = 0.016f;
 	const static int datapoints_to_record = 100;
 	static int skip_steps = SIMULATION_STEPS/datapoints_to_record;
-	static std::string file_name_prefix = "../data_exp-counters-multi-iteration/AntSimData";
+	static std::string file_name_prefix =  "data_pff";//"../data_exp-counters-multi-iteration/AntSimData";
 	static int x = 0;
 	
 	myfile.open(file_name_prefix+getExperimentSpecificName(i)+".csv");
-	// std::cout<<file_name_prefix+getExperimentSpecificName(i)<<std::endl;
+	//std::cout<<file_name_prefix+getExperimentSpecificName(i)<<std::endl;
 	float food_found_per_ant = 0.0;
 	float food_delivered_per_ant = 0.0;
 	float fraction_of_ants_found_food = 0.0;
@@ -145,7 +151,7 @@ void oneExperiment(int i)
 	World world(Conf::WORLD_WIDTH, Conf::WORLD_HEIGHT);
 	Colony colony(Conf::COLONY_POSITION.x, Conf::COLONY_POSITION.y, Conf::ANTS_COUNT, 
 	malicious_fraction, malicious_timer_wait, malicious_ants_focus, ant_tracing_pattern, 
-	counter_pheromone, hell_phermn_intensity_multiplier);
+	counter_pheromone, hell_phermn_intensity_multiplier, phermn_for_food, cunning);
 	initWorld(world, colony);	
 
 	for(int j = 0; j<SIMULATION_STEPS; j++)
@@ -174,16 +180,16 @@ void simulateAnts()
 	std::vector<int> dilusion_max_set = {50, 100, 250, 500, 750, 1000};
 	std::vector<int> dilusion_increment_power = {1, 2, 5, 10, 50, 100, 1000};
 	for(int i = 0; i<SIMULATION_ITERATIONS; i++)
-	{
-		for(int dil_max = 0; dil_max<dilusion_max_set.size(); dil_max++)
+	{oneExperiment(i);
+		/*for(int dil_max = 0; dil_max<dilusion_max_set.size(); dil_max++)
 		{
 			for(int dil_incr = 0; dil_incr<dilusion_increment_power.size(); dil_incr++)
-			{
+			{	
 				dilusion_max = dilusion_max_set.at(dil_max);
 				dilusion_increment = dilusion_max/dilusion_increment_power.at(dil_incr);
 				oneExperiment(i);
 			}
-		}
+		}*/
 		std::cout<<"###########################"<<std::endl;
 		std::cout<<"Experiment "<<i<<" Done"<<std::endl;
 		std::cout<<"###########################"<<std::endl;
@@ -197,7 +203,7 @@ void displaySimulation()
 	World world(Conf::WORLD_WIDTH, Conf::WORLD_HEIGHT);
 	Colony colony(Conf::COLONY_POSITION.x, Conf::COLONY_POSITION.y, Conf::ANTS_COUNT, 
 	malicious_fraction, malicious_timer_wait, malicious_ants_focus, ant_tracing_pattern, 
-	counter_pheromone, hell_phermn_intensity_multiplier);
+	counter_pheromone, hell_phermn_intensity_multiplier, phermn_for_food, cunning);
 
 	sf::ContextSettings settings;
 	settings.antialiasingLevel = 4;
@@ -210,6 +216,7 @@ void displaySimulation()
 	sf::Vector2f last_clic;
 	int c = 0;
 	int C = -100;
+	int i = 0;
 
 	while (window.isOpen())
 	{
@@ -235,7 +242,8 @@ void displaySimulation()
 
 		if (!display_manager.pause) {
 			updateColony(world, colony);
-			// std::cout<<std::endl;
+			//std::cout<<i<<std::endl;
+			i++;
 		}
 
 		if(c++>C)

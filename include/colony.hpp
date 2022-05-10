@@ -23,8 +23,8 @@ struct Colony
 	 * @param hell_phermn_intensity_multiplier multiplier for the intensity of TO_HELL pheromone
    */
 	Colony(float x, float y, uint32_t n, float mal_prob, int mal_timer_delay, bool malicious_ants_focus = true, 
-          AntTracingPattern ant_tracing_pattern = AntTracingPattern::RANDOM, bool counter_pheromone = false,
-          float hell_phermn_intensity_multiplier = 1.0)
+          AntTracingPattern ant_tracing_pattern = AntTracingPattern::RANDOM, bool counter_pheromone = false, 
+          float hell_phermn_intensity_multiplier = 1.0, bool phermn_for_food = false, bool cunning = false)
 		: position(x, y)
 		, last_direction_update(0.0f)
 		, ants_va(sf::Quads, 4 * n)
@@ -39,7 +39,7 @@ struct Colony
     for (uint64_t i(0); i < n; ++i) {
       if(i >= mal_prob*n)
       {
-        ants.emplace_back(x, y, getRandRange(2.0f * PI), counter_pheromone);
+        ants.emplace_back(x, y, getRandRange(2.0f * PI), counter_pheromone, phermn_for_food, cunning);
 
         const uint64_t index = 4 * i;
         ants_va[index + 0].color = Conf::ANT_COLOR;
@@ -61,7 +61,7 @@ struct Colony
           else
             angle = getRandRange(2.0f * PI); // Sets even distribution
 
-          ants.emplace_back(x, y, angle, false, true, ant_tracing_pattern, hell_phermn_intensity_multiplier); 
+          ants.emplace_back(x, y, angle, false, phermn_for_food, cunning, true, ant_tracing_pattern, hell_phermn_intensity_multiplier); 
 
           const uint64_t index = 4 * i;
           ants_va[index + 0].color = Conf::MALICIOUS_ANT_COLOR;
@@ -77,16 +77,16 @@ struct Colony
     }
 	}
 
-	void update(const float dt, World& world)
+void update(const float dt, World& world)
 	{	
     confused_count = 0;
     ants_that_found_food = 0; 
     ants_that_delivered_food = 0;
     bool wreak_havoc = timer_count >= mal_timer_delay ? true : false;
-		for (Ant& ant : ants) {
-      if(!skip_once)
-			  ant.checkColony(position);
-			ant.update(dt, world, wreak_havoc);
+	for (Ant& ant : ants) {
+      	if(!skip_once)
+		ant.checkColony(position);
+		ant.update(dt, world, wreak_havoc);
       if(ant.didAntFindFood())
         ants_that_found_food++;
       if(ant.didAntDeliverFood())
