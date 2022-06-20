@@ -11,6 +11,7 @@
 #include <iostream>     // for console output
 #include <string>       // for std::string
 #include <ctime>
+#include <unistd.h>
 
 /****************************************************************************************
 ************************ CHANGE THESE PARAMETERS FOR TRIALS ************************
@@ -242,7 +243,8 @@ void displaySimulation()
 
 		if (!display_manager.pause) {
 			updateColony(world, colony);
-			//std::cout<<i<<std::endl;
+			std::cout<<i<<std::endl;
+			//pif (i==500 or i==1500 or i==10000){sleep(10);}
 			i++;
 		}
 

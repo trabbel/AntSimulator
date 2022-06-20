@@ -58,14 +58,14 @@ struct Ant
 	{
 		updatePosition(world, dt);
 		if(is_malicious && wreak_havoc){
-		if(cunning && food_taken && markers_count > 200){
+		if(cunning && food_taken && markers_count > 50){
 			phase = Mode::ToHome;
 		}else{
 			phase = Mode::ToHell;
 		}
 		
 		
-		std::cout<<markers_count<<std::endl;
+		//std::cout<<markers_count<<std::endl;
 		
 		}
 		/*if(is_malicious && wreak_havoc){
