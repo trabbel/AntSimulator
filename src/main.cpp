@@ -24,14 +24,20 @@
 * @param malicious_timer_wait:: Delay after which the attack is launched
 * @param malicious_ants_focus::  Should the attack be focused towards food
 * @param ant_tracing_pattern::   Should malicious ants trace food pheromone or roam randomly
-* @param counter_pheromone:: Will the ants secret counter pheromone?
-* @param hell_phermn_intensity_multiplier:: multiplier for the intensity of TO_HELL pheromone
+* @param counter_pheromone:: Will the ants secret cautionary pheromone?
+* @param hell_phermn_intensity_multiplier:: Multiplier for the intensity of misleading pheromone
+* @param hell_phermn_evpr_multi:: Multiplier for the evaporation rate of misleading pheromone
+* @param cntr_phermn_evpr_multi:: Multiplier for the evaporation rate of cautionary pheromone
+* @param dilusion_max:: Maximum patience if cautionary pheromone is used
+* @param dilusion_increment:: Increment of patience if ant does not follow a food trail
+* @param phermn_fod_food:: Will the ants use pheromone for food as defensive strategy?
+* @param cunning:: Will the malicious ants work as cunning agents?
+* @param threshold:: Threshold for mode changing in cunning ants
 */
 const bool DISPLAY_GUI = true;
 const int SIMULATION_STEPS = 50000;		// Only used in the data recording, NOT IN GUI
-const int SIMULATION_ITERATIONS = 10;
-float malicious_fraction = 0.1250;//std::pow(2,-2);
-int dilusion_max = 250;
+const int SIMULATION_ITERATIONS = 100;
+float malicious_fraction = 0.1250;
 int malicious_timer_wait = 100;	
 bool malicious_ants_focus = true;
 AntTracingPattern ant_tracing_pattern = AntTracingPattern::FOOD;
@@ -39,9 +45,11 @@ bool counter_pheromone = false;
 float hell_phermn_intensity_multiplier = 1.0;
 float hell_phermn_evpr_multi = 5.0;
 float cntr_phermn_evpr_multi = 1.0;
-int dilusion_increment = 2;//500
+int dilusion_max = 250;
+int dilusion_increment = 2;
 bool phermn_for_food = true;
 bool cunning = true;
+int threshold = 0;
 
 std::string getExperimentSpecificName(int iteration)
 {
@@ -152,7 +160,7 @@ void oneExperiment(int i)
 	World world(Conf::WORLD_WIDTH, Conf::WORLD_HEIGHT);
 	Colony colony(Conf::COLONY_POSITION.x, Conf::COLONY_POSITION.y, Conf::ANTS_COUNT, 
 	malicious_fraction, malicious_timer_wait, malicious_ants_focus, ant_tracing_pattern, 
-	counter_pheromone, hell_phermn_intensity_multiplier, phermn_for_food, cunning);
+	counter_pheromone, hell_phermn_intensity_multiplier, phermn_for_food, cunning, threshold);
 	initWorld(world, colony);	
 
 	for(int j = 0; j<SIMULATION_STEPS; j++)
@@ -204,7 +212,7 @@ void displaySimulation()
 	World world(Conf::WORLD_WIDTH, Conf::WORLD_HEIGHT);
 	Colony colony(Conf::COLONY_POSITION.x, Conf::COLONY_POSITION.y, Conf::ANTS_COUNT, 
 	malicious_fraction, malicious_timer_wait, malicious_ants_focus, ant_tracing_pattern, 
-	counter_pheromone, hell_phermn_intensity_multiplier, phermn_for_food, cunning);
+	counter_pheromone, hell_phermn_intensity_multiplier, phermn_for_food, cunning, threshold);
 
 	sf::ContextSettings settings;
 	settings.antialiasingLevel = 4;
@@ -243,8 +251,8 @@ void displaySimulation()
 
 		if (!display_manager.pause) {
 			updateColony(world, colony);
-			std::cout<<i<<std::endl;
-			//pif (i==500 or i==1500 or i==10000){sleep(10);}
+			//std::cout<<i<<std::endl;
+			//if (i==500 or i==1500 or i==10000){sleep(10);}
 			i++;
 		}
 

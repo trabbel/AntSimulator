@@ -25,7 +25,7 @@ struct Ant
 	 * @param ant_tracing_pattern_arg Should malicious ants trace food pheromone or roam randomly
 	 * @param hell_phermn_intensity_multiplier_arg multiplier for the intensity of TO_HELL pheromone
 	 */
-	Ant(float x, float y, float angle, bool counter_pheromone_arg = false, bool phermn_for_food = false, bool cunning = false,
+	Ant(float x, float y, float angle, bool counter_pheromone_arg = false, bool phermn_for_food = false, bool cunning = false, int threshold = 200, 
 		bool malicious=false, AntTracingPattern ant_tracing_pattern_arg = AntTracingPattern::RANDOM, float hell_phermn_intensity_multiplier_arg = 1.0)
 		: position(x, y)
 		, direction(angle)
@@ -44,6 +44,7 @@ struct Ant
 		, hell_phermn_intensity_multiplier(hell_phermn_intensity_multiplier_arg)
 		, phermn_for_food(phermn_for_food)
 		, cunning(cunning)
+		, threshold(threshold)
 	{
 		static bool mal_ant_counted;
 		if(is_malicious)
@@ -58,7 +59,7 @@ struct Ant
 	{
 		updatePosition(world, dt);
 		if(is_malicious && wreak_havoc){
-		if(cunning && food_taken && markers_count > 50){
+		if(cunning && food_taken && markers_count > threshold){
 			phase = Mode::ToHome;
 		}else{
 			phase = Mode::ToHell;
@@ -401,4 +402,5 @@ struct Ant
 	bool first_mal_ant = false;
 	bool phermn_for_food = false;
 	bool cunning = false;
+	int threshold = 200;
 };

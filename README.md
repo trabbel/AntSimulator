@@ -1,6 +1,7 @@
-# AntSimulator
+# Ant Simulator
 
-Very simple ants simulator.
+This repository contains the code used for the paper [Hacking the Colony: On the Disruptive Effect of Misleading
+Pheromone and How to Defend Against It](https://arxiv.org/pdf/2202.01808.pdf). We extended the methods with two new ant behaviors: pheromone for food and cunning ants. Parameters can be changed in [main.cpp](https://github.com/trabbel/AntSimulator/blob/master/src/main.cpp).
 
 # Installation
 
@@ -26,20 +27,9 @@ Detailed explanation [here](https://preshing.com/20170511/how-to-build-a-cmake-b
 
 `./install.sh`
 
-### On Windows with CMake GUI and Visual Studio
- - Install the right SFML version or compile it (see [this](https://www.sfml-dev.org/tutorials/2.5/start-vc.php))
- - Run CMake
- - Select the repo location
- 
-![Cmake 1](https://github.com/johnBuffer/AntSimulator/blob/master/img/cmake_1.PNG)
- - Click on `Configure`, if you have installed the `x64` version of SFML, in the pop up window select `x64` in the `Optionnal platform for generator` drop down
+- Run the simulation
 
-![Cmake 2](https://github.com/johnBuffer/AntSimulator/blob/master/img/cmake_2.PNG)
- - Click on `Finish`
- - Click on `Generate`
-
-![Cmake 3](https://github.com/johnBuffer/AntSimulator/blob/master/img/cmake_3.PNG)
- - You can now open the generated project and build it.
+`./build/AntSimulator`
 
 # Commands
 

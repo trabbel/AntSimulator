@@ -24,7 +24,7 @@ struct Colony
    */
 	Colony(float x, float y, uint32_t n, float mal_prob, int mal_timer_delay, bool malicious_ants_focus = true, 
           AntTracingPattern ant_tracing_pattern = AntTracingPattern::RANDOM, bool counter_pheromone = false, 
-          float hell_phermn_intensity_multiplier = 1.0, bool phermn_for_food = false, bool cunning = false)
+          float hell_phermn_intensity_multiplier = 1.0, bool phermn_for_food = false, bool cunning = false, int threshold = 200)
 		: position(x, y)
 		, last_direction_update(0.0f)
 		, ants_va(sf::Quads, 4 * n)
@@ -39,7 +39,7 @@ struct Colony
     for (uint64_t i(0); i < n; ++i) {
       if(i >= mal_prob*n)
       {
-        ants.emplace_back(x, y, getRandRange(2.0f * PI), counter_pheromone, phermn_for_food, cunning);
+        ants.emplace_back(x, y, getRandRange(2.0f * PI), counter_pheromone, phermn_for_food, cunning, threshold);
 
         const uint64_t index = 4 * i;
         ants_va[index + 0].color = Conf::ANT_COLOR;
@@ -61,7 +61,7 @@ struct Colony
           else
             angle = getRandRange(2.0f * PI); // Sets even distribution
 
-          ants.emplace_back(x, y, angle, false, phermn_for_food, cunning, true, ant_tracing_pattern, hell_phermn_intensity_multiplier); 
+          ants.emplace_back(x, y, angle, false, phermn_for_food, cunning, threshold, true, ant_tracing_pattern, hell_phermn_intensity_multiplier); 
 
           const uint64_t index = 4 * i;
           ants_va[index + 0].color = Conf::MALICIOUS_ANT_COLOR;
